@@ -1,10 +1,56 @@
 ---
 title: "Periphery Gateway"
-description: "An in-depth view of Periphery Gateway"
+description: "An in-depth view of Periphery components"
 ---
 
 <Note>
-  This document requires a prerequisites understanding of the Skate Architecture, you may find it [here](/architecture/skate#skates-kernel-and-periphery)
+This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/architecture/skate#skates-kernel-and-periphery)
 </Note>
 
 ## Design of the Periphery Gateway
+
+Periphery gateways are those contracts that end user interact with, they hold arbitrary logic and reference kernel for the shared storage. All periphery contracts use the following 2 components:
+
+1. **Skate Gateway**<br/>
+  This contract defines the interface for all executors to settle a user intent, provided the preconfirmed calldata has been signed by a relayer. It:
+    + Defines the relayer, a destination chain native address
+    + Performs external calls to arbitrary periphery contracts
+    + Keeps records of executed tasks, ensuring eventual consistency with the kernel
+
+1. **Skate Periphery contract**<br/>
+  The base contract that all periphery implementations must inherit from. It must pre-register the gateway address and restrict state mutation authority to this address.
+
+
+An overview of the flow from avs to periphery is shown in the diagram below:
+
+<Card title="Periphery Settlement Diagram">
+
+```mermaid
+  flowchart TB
+    executor("Allocated Executor") --> sGateway
+
+    subgraph sGateway[Skate Gateway]
+      direction LR
+      executeTask["ExecuteTasks()"]
+      taskStore[(Execution Task Store)]
+
+      executeTask -- stage --> taskStore
+    end
+
+    executeTask -- "parse verified calldata" --> guard
+
+    subgraph App[Periphery App]
+      direction LR
+      subgraph SkatePeriphery[Skate Periphery]
+        guard{is valid gateway?}
+      end
+      pLogic["ArbitraryLogic()"]
+      guard -- yes --> pLogic
+      pLogic -- mutate --> state[(Private internal states)]
+    end
+
+    pLogic -- settle --> User(DApp Users)
+```
+</Card>
+
+Similar to [kernel](/architecture/kernel), an synced Executor Registry will live on Skate to register actors _(who are chain native addresses)_ with the capability to process user intents. For in-depth details, refer to [execution network](/architecture/execution-network)

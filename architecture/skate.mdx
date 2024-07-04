@@ -11,9 +11,14 @@ In the realm of traditional computing, the client-server architecture has long b
 
 In essence, Skate decouples the core application logic, or kernel, from user interactions, referred to as the periphery. A standard Skate's flow is managed by the following components:
 
-1. __Nollie (EVM Hub Chain)__: Nollie serves as the central hub for _all kernel contracts_, managing the core application logic and maintaining the global state. The testnet is currently built with OP Plasma.
-2. __Preconfirmation AVS (Eigenlayer)__: The Preconfirmation Actively Validated Services (AVS) facilitate secure communication between the kernel and periphery components across different chains. It ensures that intents are validated before execution, maintaining consistency and security.
-3. __Intent Execution Network:__ This network facilitates the execution of user intents on kernel contracts and coordinates with periphery contracts across multiple chains. It utilizes a decentralized group of executors to establish a competitive market for processing user intents, effectively encourage efficient and timely settlement.
+1. __Nollie (EVM Hub Chain)__<br/> 
+  Nollie serves as the central hub for _all kernel contracts_, managing the core application logic and maintaining the global state. The testnet is currently built with OP Plasma.
+
+2. __Preconfirmation AVS (Eigenlayer)__<br/>
+  The Preconfirmation Actively Validated Services (AVS) facilitate secure communication between the kernel and periphery components across different chains. It ensures that intents are validated before execution, maintaining consistency and security.
+
+3. __Intent Execution Network__<br/> 
+  This network facilitates the execution of user intents on kernel contracts and coordinates with periphery contracts across multiple chains. It utilizes a decentralized group of executors to establish a competitive market for processing user intents, effectively encourage efficient and timely settlement.
 
 A standard flow of an interaction with Skate app:
 

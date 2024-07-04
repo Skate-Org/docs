@@ -4,44 +4,49 @@ description: "An in-depth view of Kernel Layer"
 ---
 
 <Note>
-  This document requires a prerequisites understanding of the Skate Architecture, you may find it [here](/architecture/skate#skates-kernel-and-periphery)
+This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/architecture/skate#skates-kernel-and-periphery)
 </Note>
 
 ## Kernel Components
 
-The kernel reside on Skate Chain consists of 2 core components:
+The kernel reside on Skate Chain, consisting of 2 core components:
 
-1. **Message Box**: is a single contract that defines interface for _all Skate Apps_ to register user intent and corresponding execution tasks. It serves as the entry point for creating intents, and all executors will source this contract for pending actions.
+1. **Message Box**<br/> 
+  A single contract that defines interface for _all Skate Apps_ to register user intent and corresponding execution tasks. It serves as the entry point for creating intents, and all executors will source this contract for pending actions.
 
-1. **Skate App**: is the base contract that all kernel implementations must inherit from. Skate App has the responsbility to: 
+1. **Skate App**<br/>
+  The base contract that all kernel implementations must inherit from. Skate App has the responsbility to: 
     + Defining the interface for executors to reserve execution of intents.
     + Transforming user intents to imperative tasks for executions.
     + Pushing relevant data into Message Box.
     + Link the kernel app to all periphery apps on destination chains.
 
-An overview of the interaction with Kernel are shown in the diagram below:
+An overview of the interaction with Kernel is shown in the diagram below:
 
 <Card title="Kernel Flow Diagram">
 
 ```mermaid
-  flowchart LR
-    intent[User Intents] -- parsed --> processIntent
+  flowchart TB
+    executor[Any Executor] -- "call with user signed intent" --> skateApp
 
     subgraph kernel[A Kernel]
-      f0[Arbitrary Internal Logics]
+      f0["Arbitrary private \napplication specific logics"]
+      state[(App Shared State)]
       subgraph skateApp[Skate App]
         processIntent["ProcessIntent()"]
       end
       processIntent -- internal call --> f0
+      processIntent -- stage --> state
     end
     
-    processIntent -- external call --> submitTask
+    processIntent -- parse intent calldata --> submitTask
 
     subgraph MB[Message Box]
       submitTask["SubmitTasks()"]
-      taskStore[(Task Store)]
+      taskStore[("Task Store \n(create pending tasks)")]
 
       submitTask -- dump --> taskStore
+      submitTask -- register --> regExecution["Task <-> Executor \nmapping"]
     end
 ```
 </Card>
