@@ -4,6 +4,12 @@ title: "Worldcoin Proof of Personhood"
 
 ## Preliminary
 
+[World ID](https://worldcoin.org/blog/announcements/introducing-world-id-2.0) is an open and permissionless identity protocol developed to help establish Proof of Personhood (PoP) on a global scale.
+
+World ID functions as a digital “passport” that lives locally on its holder’s phone and can be used to privately prove that they are a real and unique person. This privacy is possible thanks to the use of zero-knowledge proofs (ZKP) that prevent third parties from knowing a person’s World ID public key or tracking them across applications. ZKPs also protect the use of World ID from being tied to the iris code of the person or any data used in its creation.
+
+Worldcoin core contracts are currently deployed on Ethereum, where the Merkle Tree for all the identities are maintained. These connect with other chains like Polygon and Optimism by duplicating the state on each chain.
+
 <Card title="Worldcoin architecture overview">
   <img src="/images/use-cases/worldcoin/worldcoin_architecture.png" alt="Worldcoin Architecture overview"/>
 </Card>
@@ -21,7 +27,7 @@ While Worldcoin’s current architecture works well in a silo on a single chain,
 2. **Economic Security of Relayer**<br/>
   The Relayer is a key piece in the architecture whose task is to duplicate the state updates on Ethereum to other chains.  Although the relayer being a criticial component, it is not backed by any economic securities for scenarios where the relayer could turn malicious.
 
-While Worldcoin has been trying to address these issues by launching [their own L2 (WorldChain)](https://worldcoin.org/blog/announcements/introducing-world-chain) and with [Wormhole integration](https://x.com/wormhole/status/1806343150769930320), we believe integration with Skate Chain solves these issues in a much efficient and scalable way. Our integration can focus on enabling Proof of Personhood for TON ecosystem
+While Worldcoin has been trying to address these issues by launching [their own L2 (WorldChain)](https://worldcoin.org/blog/announcements/introducing-world-chain) and with [Wormhole integration](https://x.com/wormhole/status/1806343150769930320), we believe integration with Skate Chain solves these issues in a much efficient and scalable way. Our integration can focus on enabling PoP for TON ecosystem
 
 ## Worldcoin integration with Skate
 
@@ -29,7 +35,7 @@ While Worldcoin has been trying to address these issues by launching [their own 
   <img src="/images/use-cases/worldcoin/worldcoin_skate.png" alt="Worldcoin with Skate"/>
 </Frame>
 
-By adopting Skate, WorldCoin can gain the following advantages:
+By adopting Skate, Worldcoin can gain the following advantages:
 
 
 1. **Unified State Management**<br />
@@ -43,7 +49,7 @@ By adopting Skate, WorldCoin can gain the following advantages:
 
 ## World coin PoP as a Stateless App
 
-The following outline implementation specifications of Worldcoin Proof of Personhood (PoP) as a stateless app
+The following outline implementation specifications of Worldcoin PoP as a stateless app
 
 ### Kernel
 
@@ -83,12 +89,12 @@ The following outline implementation specifications of Worldcoin Proof of Person
 
 <Card title="Worldcoin Kernel Implementations">
 
-```solidity WorldCoinApp.sol
+```solidity WorldcoinApp.sol
 /// import Skate directives... SkateApp, ImessageBox
 import "@worldcoin/world-id-contracts/WorldID.sol";
 import "@worldcoin/world-id-contracts/interfaces/IWorldID.sol";
 
-contract WorldCoinApp is SkateApp {
+contract WorldcoinApp is SkateApp {
     IWorldID internal worldId;
     uint256 internal externalNullifierHash;
     uint256 internal groupId = 1;
@@ -147,11 +153,11 @@ contract WorldCoinApp is SkateApp {
 ### Periphery
 
 
-<Card title="WorldCoin Periphery contracts">
+<Card title="Worldcoin Periphery contracts">
 
-```solidity WorldCoinPeriphery.sol
+```solidity WorldcoinPeriphery.sol
 /// import Skate directives... SkateAppPeriphery
-contract WorldCoinPeriphery is SkateAppPeriphery {
+contract WorldcoinPeriphery is SkateAppPeriphery {
     function executeTask(IMessageBox.Task calldata task) external onlyGateway {
         (bool success,) = address(this).call(task.taskCalldata);
         require(success, "TaskExecutionFailed");
