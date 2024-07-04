@@ -83,9 +83,8 @@
         {
           "group": "Case Study",
           "pages": [
-            "use-cases/case-study/nft-fi",
-            "use-cases/case-study/dex",
-            "use-cases/case-study/crosschain-defi"
+            "use-cases/case-study/worldcoin",
+            "use-cases/case-study/dex"
           ]
         },
         "use-cases/other"
