@@ -1,0 +1,7 @@
+---
+title: 'Boostrapper'
+---
+
+Bootstrap nodes are robust entities that maintain the Distributed Hash Table (DHT) to ensure connectivity between peer-to-peer (p2p) participants. Othentic stack utilizes [libp2p's implementation of Kademlia DHT](https://github.com/libp2p/js-libp2p/tree/main/packages/kad-dht). 
+
+Since [Aggregators](/operators/roles/aggregator) will act as entry points for [attesters](/operators/roles/attester) and [performers](/operators/roles/performer) to publish their work, they **also serve as the bootstrappers of the p2p AVS network**.

@@ -132,9 +132,10 @@
     {
       "group": "Specialized Roles",
       "pages": [
-        "operators/roles/aggregator",
         "operators/roles/performer",
-        "operators/roles/attester"
+        "operators/roles/aggregator",
+        "operators/roles/attester",
+        "operators/roles/bootstrapper"
       ]
     },
     {

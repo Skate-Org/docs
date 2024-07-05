@@ -1,0 +1,34 @@
+---
+title: 'Performer'
+---
+
+<Note>
+  The process is not yet open to the public. Please await onboarding instructions from our [official Twitter handle](https://x.com/skate_chain)
+</Note>
+
+## Start a Performer
+
+To start up a Performer node, please download Skate Performer software. Then run the Docker image with the following options:
+
++ **Aggregator RPC endpoint**: the JSON RPC server endpoint of a known aggregator, Skate will maintain a live aggregator at `https://aggregator-rpc.avs.skatechain.org`
+
++ **Config**: specify the process runtime environment, i.e. wallet config, source chains of interest to process, Skate RPC, log format/output, custom signing strategy, etc.
+
+### Metrics server
+
+A metrics server will be spawning on `127.0.0.1:4003`, can be customized base on the input config. Node operators has to set up their own metrics analytics service, e.g. Grafana. Skate provides instructions and a default configuration for Grafana server.
+
+### Task execution status
+
+Execution status of all performers collected tasks can be queried from `https://task-server.avs.skatechain.org`
+
+## Hardware requirements
+
+| Specification                | Details              |
+|------------------------------|----------------------|
+| vCPUs                        | 2                    |
+| Memory                       | 8 GiB                |
+| Storage                      | 256 GB               |
+| AWS EC2 Equivalent           | [m5.large](https://aws.amazon.com/ec2/instance-types/)             |
+| Download Bandwidth           | 20 Mbps              |
+| Upload Bandwidth             | 20 Mbps              |

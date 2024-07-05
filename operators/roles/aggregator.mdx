@@ -1,0 +1,35 @@
+---
+title: 'Aggregator'
+---
+
+<Note>
+  The process is not yet open to the public. Please await onboarding instructions from our [official Twitter handle](https://x.com/skate_chain)
+</Note>
+
+## Start an Aggregator
+
+To start up an Aggregator node, one needs access to Othentic CLI and download Skate Aggregator extension package. Then start up the node by specifying the following options:
+
++ **Config**: contains essential information to boost up the node, e.g. jsonRPC server and p2p network ports, aggregator key, and Attestation chain RPC.
++ **Announce**: public dns in [multiaddr format](https://github.com/libp2p/specs/blob/master/addressing/README.md) for other peers to reach this node, e.g. `/dns4/aggregator.avs.skatechain.org/tcp/6666`
+
+### Network config
+
+The machine on which the aggregator runs must expose the specified jsonRPC server and libp2p node process ports to the public domain. By default, the jsonRPC server starts on `:8545` and the libp2p node process starts on `:9876`.
+
+A sample nginx config and set up instructions can be found in [Skate repo](https://github.com/Skate-Org/skate/avs) (restricted access)
+
+### Metrics server
+
+A metrics server will be spawning on `127.0.0.1:4001`, can be customized base on the input config. Node operators has to set up their own metrics analytics service, e.g. Grafana. Skate provides instructions and a default configuration for Grafana server.
+
+## Hardware requirements
+
+| Specification                | Details              |
+|------------------------------|----------------------|
+| vCPUs                        | 4                    |
+| Memory                       | 16 GiB               |
+| Storage                      | 512 GB               |
+| AWS EC2 Equivalent           | [m5.xlarge](https://aws.amazon.com/ec2/instance-types)            |
+| Download Bandwidth           | 20 Mbps              |
+| Upload Bandwidth             | 20 Mbps              |

@@ -50,6 +50,7 @@ The flow is depicted in the diagram below:
     subgraph aggregator[Task Aggregator]
       jsonRPC
       blsAggregator
+      cache
     end
 
     performer -- "dispatch" --> jsonRPC
@@ -59,16 +60,16 @@ The flow is depicted in the diagram below:
     attester1[Attester 1]
     attester2[Attester 2]
     attester3[Attester 3]
-    
+
     attester1 -- "subscribe" --> p2p
     p2p -. "task" .-> attester1
-    
+
     attester2 -- "subscribe" --> p2p
     p2p -. "task" .-> attester2
 
     attester3 -- "subscribe" --> p2p
     p2p -. "task" .-> attester3
-    
+
     attester1 -- "vote" --> blsAggregator
     attester2 -- "vote" --> blsAggregator
     attester3 -- "vote" --> blsAggregator
