@@ -87,7 +87,7 @@ Above, we provided some diagrams to allow you to understand the flow of processI
 
 In this function: 
 
-1. Executing the calldata provided by the intent
+**A. Executing the calldata provided by the intent**
 
 Based on the intent, the calldata will be a function that is defined in your kernel contract. This is why this function performs a low level solidity call **on the calling contract.** 
 
@@ -146,11 +146,11 @@ In the function, you can implement all the necessary application logic, similar 
 
 Developers have the flexibility to customize the data used for tasks based on the specific logic of their functions. Tasks are designed to support a wide range of interactions. When crosschain interactions are required, developers must ensure that the correct function calls are specified in the periphery contract.
 
-1. Decoding tasks that were returned from the executed calldata
+**B. Decoding tasks that were returned from the executed calldata**
 
 Processing the tasks that were returned by the executed calldata stated in the intent.
 
-1. Submitting these tasks to the messageBox. 
+**C. Submitting these tasks to the messageBox.**
 
 Executors will be subscribing to the messageBox for any new tasks to be executed and after passing all necessary checks, the intent will be executed on Skate and broadcasted to Executors for them to execute on intended periphery chains. 
 
