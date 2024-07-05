@@ -40,7 +40,7 @@ The flow is depicted in the diagram below:
   flowchart 
     MB[Message Box]
     performer[Task Performer]
-    p2p[Task Pubsub Channel]
+    p2p[P2P Pubsub Channel]
     jsonRPC[Json-RPC server]
     blsAggregator[BLS Aggregation Module]
 
@@ -54,19 +54,27 @@ The flow is depicted in the diagram below:
 
     performer -- "dispatch" --> jsonRPC
 
-    aggregator -- "publish" --> p2p
+    blsAggregator -- "1) publish" --> p2p
 
     attester1[Attester 1]
     attester2[Attester 2]
+    attester3[Attester 3]
     
     attester1 -- "subscribe" --> p2p
+    p2p -. "task" .-> attester1
+    
     attester2 -- "subscribe" --> p2p
+    p2p -. "task" .-> attester2
+
+    attester3 -- "subscribe" --> p2p
+    p2p -. "task" .-> attester3
     
     attester1 -- "vote" --> blsAggregator
     attester2 -- "vote" --> blsAggregator
+    attester3 -- "vote" --> blsAggregator
 
     quorumReached{"Is Quorum\n Reached?"}
-    blsAggregator --> quorumReached
+    blsAggregator -- "2) check" --> quorumReached
 
     quorumReached -- "yes" --> AC[Attestation Center]
 

@@ -13,7 +13,7 @@ Periphery gateways are those contracts that end user interact with, they hold ar
 
 1. **Skate Gateway**<br/>
   This contract defines the interface for all executors to settle a user intent, provided the preconfirmed calldata has been signed by a relayer. It:
-    + Defines the relayer, a destination chain native address
+    + Defines the relayer, an authority from [AVS](/main/architecture/avs) that attests to and vouches for the preconfirmation results.
     + Performs external calls to arbitrary periphery contracts
     + Keeps records of executed tasks, ensuring eventual consistency with the kernel
 
@@ -27,11 +27,11 @@ An overview of the flow from avs to periphery is shown in the diagram below:
 
 ```mermaid
   flowchart TB
-    executor("Allocated Executor") --> sGateway
+    executor["Allocated Executor"] --> sGateway
 
     subgraph sGateway[Skate Gateway]
       direction LR
-      executeTask["ExecuteTasks()"]
+      executeTask{{"ExecuteTasks()"}}
       taskStore[(Execution Task Store)]
 
       executeTask -- stage --> taskStore
@@ -44,12 +44,12 @@ An overview of the flow from avs to periphery is shown in the diagram below:
       subgraph SkatePeriphery[Skate Periphery]
         guard{is valid gateway?}
       end
-      pLogic["ArbitraryLogic()"]
+      pLogic{{"ArbitraryLogic()"}}
       guard -- yes --> pLogic
       pLogic -- mutate --> state[(Private internal states)]
     end
 
-    pLogic -- settle --> User(DApp Users)
+    pLogic -- settle --> User[DApp Users]
 ```
 </Card>
 

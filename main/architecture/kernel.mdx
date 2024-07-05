@@ -26,27 +26,27 @@ An overview of the interaction with Kernel is shown in the diagram below:
 <Card title="Kernel Flow Diagram">
 
 ```mermaid
-  flowchart TB
-    executor[Any Executor] -- "call with user signed intent" --> skateApp
+  flowchart BT
+    executor[Any Executor] -- "parse user signed intent" --> processIntent
 
-    subgraph kernel[A Kernel]
-      f0["Arbitrary private \napplication specific logics"]
+    subgraph kernel[App Kernel]
+      f0["Arbitrary application \nspecific logics"]
       state[(App Shared State)]
-      subgraph skateApp[Skate App]
-        processIntent["ProcessIntent()"]
+      subgraph skateApp[SkateApp]
+        processIntent{{"ProcessIntent()"}}
       end
-      processIntent -- internal call --> f0
+      processIntent -- execute --> f0
       processIntent -- stage --> state
     end
     
     processIntent -- parse intent calldata --> submitTask
 
     subgraph MB[Message Box]
-      submitTask["SubmitTasks()"]
-      taskStore[("Task Store \n(create pending tasks)")]
+      submitTask{{"SubmitTasks()"}}
+      taskStore[("Task Store \n(pending tasks)")]
 
-      submitTask -- dump --> taskStore
-      submitTask -- register --> regExecution["Task <-> Executor \nmapping"]
+      submitTask -- update --> taskStore
+      submitTask -- register --> regExecution["Task <-> Executor\n mapping"]
     end
 ```
 </Card>
