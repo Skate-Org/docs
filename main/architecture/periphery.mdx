@@ -12,7 +12,7 @@ This document assumes a prerequisite understanding of the Skate Architecture, wh
 Periphery gateways are those contracts that end user interact with, they hold arbitrary logic and reference kernel for the shared storage. All periphery contracts use the following 2 components:
 
 1. **Skate Gateway**<br/>
-  This contract defines the interface for all executors to settle a user intent, provided the preconfirmed calldata has been signed by a relayer. It:
+  This contract defines the interface for all executors to settle user intents, provided the preconfirmed calldata has been signed by a relayer. It:
     + Defines the relayer, an authority from [AVS](/main/architecture/avs) that attests to and vouches for the preconfirmation results.
     + Performs external calls to arbitrary periphery contracts
     + Keeps records of executed tasks, ensuring eventual consistency with the kernel

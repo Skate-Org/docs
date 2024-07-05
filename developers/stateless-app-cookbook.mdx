@@ -4,6 +4,9 @@ description: 'Build a stateless app with Skate infrastructure'
 icon: "browser"
 ---
 
+<Note>
+This document assumes a prerequisite understanding of how [Skate app](/main/architecture/skate#skates-kernel-and-periphery) works, specifically the concept of [Kernel](/main/architecture/kernel) and [Periphery](/main/architecture/periphery)
+</Note>
 This doc assumes basic understanding of how Skate apps work and the concept of splitting Stateless apps into Kernel and Periphery components.
 
 ## Key Concepts
@@ -58,7 +61,7 @@ Tasks serve as a reliable source of truth for executors, facilitating the transm
 
 For any Stateless App, it has to be **inherit** **SkateApp.sol abstract contract.** This contract helps bootstrap most of the function calls that you need to tap into Skate and allows you to focus on building custom logic specific to your application.
 
-### 1. processIntent
+### processIntent()
 
 <Frame caption="Stateless app execution flow">
   <img src="/images/developers/execution_flow.png" alt="stateless-app-execution-flow" />
@@ -155,11 +158,11 @@ Executors will be subscribing to the messageBox for any new tasks to be executed
 
 For any Stateless App, it must **inherit the SkateAppPeriphery.sol contract.** Since periphery contracts are designed to perform minimal peripheral activities such as transferring assets and providing lookup states derived from Skate, little development work is required here. Nonetheless, here are some key points to take note of:
 
-### 1. SkateGateway as the Main Entry Point
+### SkateGateway as the Main Entry Point
 
 The SkateGateway serves as the central entry point for all interactions with the periphery app. To ensure security and proper routing of functions, periphery write functions must adopt the onlyGateway modifier.
 
-### Example:
+**Example**<br/>
 
 ```solidity SkateGateway.sol
 modifier onlyGateway() {
@@ -174,11 +177,9 @@ This modifier ensures that only the SkateGateway can execute specific functions 
 
 ### 1. Executors need to be registered on ALL executor registries
 
-<Note>
-To deploy any Stateless app, an executor registry must be specified during contract initialization. To facilitate the necessary intent execution, owners of Stateless apps must whitelist executors on Skate and all peripheral chains. This ensures that the required executors are recognized and authorized across all relevant networks.
-</Note>
+To deploy any Stateless app, an executor registry must be specified during contract initialization. To facilitate the necessary intent execution, owners of Stateless apps must whitelist (their own) executors on Skate and all peripheral chains. This ensures that the required executors are recognized and authorized across all relevant networks.
 
-### 2. setChainToPeripheryContract
+### 2. setChainToPeripheryContract()
 
 ```solidity SkateApp.sol
 /// All Skate stateless apps inherit from SkateApp contract, 

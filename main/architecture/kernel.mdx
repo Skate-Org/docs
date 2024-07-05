@@ -9,7 +9,7 @@ This document assumes a prerequisite understanding of the Skate Architecture, wh
 
 ## Kernel Components
 
-The kernel reside on Skate Chain, consisting of 2 core components:
+The kernel components are responsible for managing the unified state and executing essential logic. They resides on Skate Chain, consisting of:
 
 1. **Message Box**<br/> 
   A single contract that defines interface for _all Skate Apps_ to register user intent and corresponding execution tasks. It serves as the entry point for creating intents, and all executors will source this contract for pending actions.
