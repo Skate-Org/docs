@@ -7,3 +7,24 @@ title: 'Attester'
 </Note>
 
 ## Start an Attester
+
+To start up an Attester node, one needs access to Othentic CLI. Then start up the node by running with Othentic CLI with the following options:
+
++ **Bootstrap node**: the known peer, also the aggregator in [multiaddr format](https://github.com/libp2p/specs/blob/master/addressing/README.md). This must by args\[1\] when invoking the CLI
+
++ **Avs web API**: Skate AVS WebAPI at `https://webapi.avs.skatechain.org` and port `443` for HTTPs.
+
+### Metrics server
+
+A metrics server will be spawning on `127.0.0.1:4002`, can be customized base on the input config. Node operators has to set up their own metrics analytics service, e.g. Grafana. Skate provides instructions and a default configuration for Grafana server.
+
+## Hardware requirements
+
+| Specification                | Details              |
+|------------------------------|----------------------|
+| vCPUs                        | 2                    |
+| Memory                       | 4 GiB                |
+| Storage                      | 128 GB               |
+| AWS EC2 Equivalent           | [t2.medium](https://aws.amazon.com/ec2/instance-types)            |
+| Download Bandwidth           | 5 MBps               |
+| Upload Bandwidth             | 5 MBps               |
