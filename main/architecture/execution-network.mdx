@@ -6,7 +6,7 @@ title: "Execution Network"
 This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/main/architecture/skate#skates-kernel-and-periphery)
 </Note>
 
-Skate Execution Network consists of **a transaction relayer** and **a set of executors**:
+Skate Execution Network consists of **a transaction relayer**, **a set of executors** along with **Executor Registries** on kernel and every supported chain:
 
 1. **Executors**<br/>
   These specialized entities, either from Skate or third-party providers, handle user intents across blockchains. They must manage their own cross-chain inventories and execution plans. In exchange, they receive fees from users who need their transactions settled through Skate.
@@ -18,7 +18,11 @@ Skate Execution Network consists of **a transaction relayer** and **a set of exe
 2. **Relayer**<br/>
   The relayer oversees the confirmation results from [Skate Preconfirmation AVS](/main/architecture/avs) and attests to them by signing, effectively preparing the calldata for the executor.
 
-A high level overview of the flow within execution network
+3. **Executor Registry**<br/>
+  The Executor Registry manages the addition and removal of executors. Skate's design ensures Consistency and Partition tolerance (CP system). As a result, an executor must register on a specific periphery chain before being allocated a related intent.
+
+---
+A high level overview of the whole Skate's flow within execution network
 
 <Card title="Execution Network flow">
 
@@ -26,7 +30,7 @@ A high level overview of the flow within execution network
   flowchart TB
     executor[Executor]
     MB[Message Box]
-    periphery[Periphery Apps]
+    periphery[Periphery Components]
     AVS[Skate AVS]
     relayer[Relayer]
     data[Preconfirmed Data]

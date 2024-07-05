@@ -4,7 +4,7 @@ description: "Skate's Preconfirmation AVS design and Integration of Othentic's s
 ---
 
 <Note>
-This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/main/architecture/skate#skates-kernel-and-periphery)
+  This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/main/architecture/skate#skates-kernel-and-periphery)
 </Note>
 
 Preconfirmation AVS verifies all execution calldata submitted by executors, which is published to the [Message Box contract](/main/architecture/kernel#kernel-components). 
@@ -50,7 +50,6 @@ The flow is depicted in the diagram below:
     subgraph aggregator[Task Aggregator]
       jsonRPC
       blsAggregator
-      cache
     end
 
     performer -- "dispatch" --> jsonRPC

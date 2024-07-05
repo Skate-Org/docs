@@ -27,7 +27,10 @@ An overview of the flow from avs to periphery is shown in the diagram below:
 
 ```mermaid
   flowchart TB
-    executor["Allocated Executor"] --> sGateway
+    AVS[Skate AVS components]
+    executor -- "retrieve verified data" --> AVS
+    AVS -. data .-> executor
+    executor["Allocated Executor"] -- "with verified data" --> executeTask
 
     subgraph sGateway[Skate Gateway]
       direction LR
@@ -53,4 +56,4 @@ An overview of the flow from avs to periphery is shown in the diagram below:
 ```
 </Card>
 
-Similar to [kernel](/main/architecture/kernel), an synced Executor Registry will live on Skate to register actors _(who are chain native addresses)_ with the capability to process user intents. For in-depth details, refer to [execution network](/main/architecture/execution-network)
+Similar to [kernel](/main/architecture/kernel), a synced Executor Registry (with guaranteed Consistency and Partition tolerence) will live on Skate to register these actors, _who are chain native addresses_, with the capability to process user intents. For in-depth details, refer to [execution network](/main/architecture/execution-network)
