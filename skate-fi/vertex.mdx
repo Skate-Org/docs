@@ -20,15 +20,22 @@ Vault users can perform following functionalities:
 
 2. A user can burn their vault shares (close position) to withdraw their share of USDC from the vault. The user withdrawal is subject to the availability of passive USDC in the vault. A manager is obliged to maintain enough passive USDC balance in the contract for the LP to redeem their shares. More details about how much is available for user to withdraw is described in the Burn LP token section. A managing fee cut (0.5%) is taken from the withdrawing amount and the remainder is sent to the LP.
 
-### Burning of LP tokens
+### Withdrawable amount from the vault
 
 A user receives underlying USDC token (USDB for the vault on Blast) upon burning their vault LP token. The amount of tokens users can burn depends upon how much passive balance of USDC/USDB is available in the vault. The maximum a user can withdraw at a given time cannot exceed the passive balance of the vault since the user’s withdrawing amount is paid from the passive balance. 
 
-To understand it further, we go over the following two scenarios.
+To understand it further, lets go over the following two scenarios.
 
-+ The vault has 15,000 USDC as passive balance and the withdrawing user’s total position’s underlying amount is 12,000 USDC. The user should be able to burn all of their LP tokens and receive 12,000 USDC.
++ The vault has **15,000 USDC** as passive balance and the withdrawing user’s total position’s underlying amount is **12,000 USDC**. The user should be able to burn all of their LP tokens and receive **12,000 USDC**.
 
-+ The vault has 8,000 USDC as passive balance and the withdrawing user’s total position’s underlying amount is 12,000 USDC. The user can only burn 66.66% of their shares and withdraw 8,000 USDC. The rest of 33.33% vault shares can be burned once the vault manager rebalances the positions on Vertex and move funds to the vault.
++ The vault has **8,000 USDC** as passive balance and the withdrawing user’s total position’s underlying amount is **12,000 USDC**. The user can only burn **66.66%** of their shares and withdraw **8,000 USDC**. The rest of **33.33%** vault shares can be burned once the vault manager rebalances the positions on Vertex and move funds to the vault.
+
+In the image below the user’s total underlying balance is **69,743.2 USDC** but since the passive balance in the vault is only **~130 USDC**, the withdrawal amount at the moment for the user is only **~130 USDC** (**129.5 USDC** to be exact). The user will be able to withdraw the rest of their balance once the manager rebalances the vault and moves funds from Vertex to the vault.
+
+<Frame caption="An example of withdrawing liquidity">
+  <img src="/images/skate-fi/example_withdraw.png" alt="User can withdraw only 130 USDC since the passive balance is 130 USDC"/>
+</Frame>
+
 
 ### LP Pricing Mechanism
 
@@ -36,7 +43,13 @@ A function on the vault `getUnderlyingBalance` returns the current holding of th
 
 ### Incentive distribution
 
-All incentives earned by the vault are given back to the users. The ARB and VRTX incentives earned by the Arbitrum vault are claimable by the users on the vault’s UI and are updated at the end of each rewards respective epoch, while the Blast Points and Blast Gold earned by the Blast vault are transferred to the users after the epoch ends.
+All incentives earned by the vault are given back to the users. The ARB and VRTX incentives earned by the Arbitrum vault are claimable by the users on the vault’s UI and are updated at the end of each rewards respective epoch.
+
+<Card title="User can click `Claim` to claim their rewards">
+  <img src="/images/skate-fi/incentive.png" alt="Claim button next to incentivized asset to claim their rewards"/>
+</Card>
+
+The Blast Points and Blast Gold earned by the Blast vault are transferred to the users directly by Skate team after the epoch ends.
 
 ## Deployments
 
