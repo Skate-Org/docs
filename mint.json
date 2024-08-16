@@ -33,6 +33,10 @@
     {
       "name": "FAQ",
       "url": "faq"
+    },
+    {
+      "name": "SkateFi",
+      "url": "skate-fi"
     }
   ],
   "anchors": [
@@ -143,6 +147,12 @@
       "pages": [
         "faq/general",
         "faq/testnet"
+      ]
+    },
+    {
+      "group": "Skate Fi",
+      "pages": [
+        "skate-fi/vertex"
       ]
     }
   ],
