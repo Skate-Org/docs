@@ -110,9 +110,11 @@
     {
       "group": "Non-EVM",
       "pages": [
+        "developers/sync-wallet",
         {
           "group": "TON",
           "pages": [
+            "developers/ton/case-studies",
             "developers/ton/kernel",
             "developers/ton/periphery"
           ]

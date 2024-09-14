@@ -1,0 +1,24 @@
+---
+title: 'Sync Wallet across VMs'
+---
+
+## Purpose
+
+To facilitate seamless interaction between blockchains operating on different types of Virtual Machines (VMs), Skate employs a central Wallet Registry at the Kernel level. This ensures that users can use various wallets across VMs while maintaining a consistent shared state.
+
+{/* TODO: Include docs for WalletRegistry from Kernel */}
+
+## Interaction flow
+
+The flow for syncing wallets is outlined as follows:
+
+1. Users initiate requests from different virtual machines (VMs).
+2. The intents are collected by the Skate Infrastructure, where they are matched through a 2-way handshake—users must prove ownership of both the VM1 and VM2 wallets to sync them.
+3. The executor submits the signature pairs to update the Wallet Registry on the Kernel.
+
+The diagram below illustrates an example interaction between EVM, Solana, and TON. This flow can be generalized to support interactions across N-many VMs.
+
+<Frame caption="Sync Wallet between different VMs">
+  <img src="/images/developers/sync_wallet.png" alt="Sync Wallet flow"/>
+</Frame>
+
