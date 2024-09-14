@@ -10,7 +10,7 @@ title: 'About Skate Preconfirmation AVS'
 
 ## Preliminary
 
-Skate Preconfirmation AVS utilizes EigenLayer restaked assets to ensure the economic security of all cross-chain actions. The AVS is responsible for verifying AVS tasks, which are bundled calldata and necessary information for [Skate executors](/main/architecture/execution-network) to settle cross-chain transactions. The AVS verified data output is then signed by the [Skate relayer(/main/architecture/execution-network)] before it is ready to be executed. In other words, Skate AVS pre-confirms data, hence the name Preconfirmation AVS.
+Skate Preconfirmation AVS utilizes EigenLayer restaked assets to ensure the economic security of all cross-chain actions. The AVS is responsible for verifying AVS tasks, which are bundled calldata and necessary information for [Skate executors](/main/architecture/execution-network) to settle cross-chain transactions. The AVS verified data output is then signed by the [Skate relayer](/main/architecture/execution-network)] before it is ready to be executed. In other words, Skate AVS pre-confirms data, hence the name Preconfirmation AVS.
 
 ## Design
 
@@ -18,18 +18,16 @@ Please refer to the [Skate Preconfirmation AVS](/main/architecture/avs) for a de
 
 ## Source code
 
-Skate uses [Othentic's stack](/operators/general/othentic), therefore the contracts source code is managed by Othentic.
+Skate uses [Othentic's stack](/operators/general/othentic), the contracts code is not availble for public at the moment.
 
 <Note>
-  Currently, Othentic smart contracts is not open to the public. However, general architecture and attestation process can be found in [their docs](https://othentic.gitbook.io/main/stateless-rollup-framework/othentic-consensus/othentic-bls-obls)
+  Though the code is not public, architecture and attestation framework can be found at [https://othentic.gitbook.io/main/avs-framework/smart-contracts/othentic-bls-obls](https://othentic.gitbook.io/main/avs-framework/smart-contracts/othentic-bls-obls)
 </Note>
 
 ---
 
-For off-chain components, we are working on the process to onboard operators. The service code and images will be published in [Skate Github repo](https://github.com/orgs/Skate-Org)
-
 <Note>
-  Published images are from our old AVS version. A new version along with updated onboarding docs will be published soon.
+  Off-chain AVS services code will be publicly available at [https://github.com/Skate-org] before mainnet. For now, stay tune for more update!
 </Note>
 
 ## Rewards structure
@@ -41,3 +39,7 @@ We are working on finalizing the rewards structure. Detailed will be discussed o
 All Skate AVS operators must be a registered EigenLayer Operator. In addition, the operator need to register to Skate AVS contracts.
 
 The hardware requirements will be dependent on the role of operator. Refers to operator [roles](/operators/roles) section for further details
+
+<Note>
+
+</Note>
