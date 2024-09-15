@@ -101,9 +101,21 @@
       ]
     },
     {
+      "group": "Connecting different VMs",
+      "pages": [
+        "developers/sync-wallet"
+      ]
+    },
+    {
+      "group": "EVM Integration",
+      "pages": [
+       "developers/evm/kernel",
+       "developers/evm/periphery"
+      ]
+    },
+    {
       "group": "Non-EVM Integration",
       "pages": [
-        "developers/sync-wallet",
         {
           "group": "TON",
           "pages": [
