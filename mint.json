@@ -101,14 +101,7 @@
       ]
     },
     {
-      "group": "EVM",
-      "pages": [
-        "developers/evm/kernel",
-        "developers/evm/periphery"
-      ]
-    },
-    {
-      "group": "Non-EVM",
+      "group": "Non-EVM Integration",
       "pages": [
         "developers/sync-wallet",
         {
@@ -122,6 +115,7 @@
         {
           "group": "Solana",
           "pages": [
+            "developers/solana/case-studies",
             "developers/solana/kernel",
             "developers/solana/periphery"
           ]
@@ -141,7 +135,8 @@
         "operators/roles/performer",
         "operators/roles/aggregator",
         "operators/roles/attester",
-        "operators/roles/bootstrapper"
+        "operators/roles/bootstrapper",
+        "operators/roles/syncer"
       ]
     },
     {

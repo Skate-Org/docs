@@ -1,3 +1,24 @@
 ---
 title: 'Kernel for Solana'
 ---
+
+Refer to [Stateless App Cookbook#Kernel](/developers/stateless-app-cookbook#kernel).
+
+The intents on Solana are user signatures over custom messages.
+
+To construct the message and validate the signed Solana intent, Skate VM will implement precompiled op-codes at the chain level, ensuring that the message is correctly structured and the intent is valid for execution.
+
+Recalls the Task structure on Message box
+
+```solidity IMessageBox.sol
+struct Task {
+    bytes32 appAddress;
+    bytes taskCalldata;
+    bytes32 user;
+    uint256 chainId;
+    uint256 vmType; // 1 = EVM | 2 = TON | 3 = SOLANA | etc..
+}
+```
+
+
+After the tasks are created, the serialized Solana message is verified by Skate AVS and then scheduled for execution on Solana periphery contracts.
