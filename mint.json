@@ -23,6 +23,10 @@
   },
   "tabs": [
     {
+      "name": "Introduction",
+      "url": "introduction"
+    },
+    {
       "name": "Developers",
       "url": "developers"
     },
@@ -55,8 +59,7 @@
     {
       "group": "Introduction",
       "pages": [
-        "main/introduction/background",
-        "main/introduction/terminology"
+        "main/introduction"
       ]
     },
     {
@@ -75,13 +78,6 @@
       ]
     },
     {
-      "group": "Skate Chain",
-      "pages": [
-        "main/blockchain/optimism",
-        "main/blockchain/avail"
-      ]
-    },
-    {
       "group": "Use Cases",
       "pages": [
         {
@@ -92,6 +88,17 @@
           ]
         },
         "main/use-cases/other"
+      ]
+    },
+    {
+      "group": "Stateless Apps",
+      "pages": [
+        {
+          "group": "Apps",
+          "pages": [
+            "main/stateless-apps/apps"
+          ]
+        }
       ]
     },
     {

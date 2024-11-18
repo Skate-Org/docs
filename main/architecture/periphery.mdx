@@ -1,5 +1,5 @@
 ---
-title: "Periphery Gateway"
+title: "Periphery Layer"
 description: "An in-depth view of Periphery components"
 ---
 
@@ -7,19 +7,22 @@ description: "An in-depth view of Periphery components"
 This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/main/architecture/skate#skates-kernel-and-periphery)
 </Note>
 
-## Design of the Periphery Gateway
+## Periphery Components
+<Frame caption="Periphery Diagram">
+  <img src="/images/architecture/PeripheryDiagram.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+Periphery contracts are contracts that reside on the connected chains across TonVM, EVM, Solana VM etc. It is where the will end user interact with, they hold arbitrary logic and reference kernel for the shared storage. Periphery contracts comprises of 2 components: 
 
-Periphery gateways are those contracts that end user interact with, they hold arbitrary logic and reference kernel for the shared storage. All periphery contracts use the following 2 components:
-
-1. **Skate Gateway**<br/>
-  This contract defines the interface for all executors to settle user intents, provided the preconfirmed calldata has been signed by a relayer. It:
-    + Defines the relayer, an authority from [AVS](/main/architecture/avs) that attests to and vouches for the preconfirmation results.
-    + Performs external calls to arbitrary periphery contracts
-    + Keeps records of executed tasks, ensuring eventual consistency with the kernel
-
-1. **Skate Periphery contract**<br/>
-  The base contract that all periphery implementations must inherit from. It must pre-register the gateway address and restrict state mutation authority to this address.
-
+1. **Skate Gateway**
+    
+    This contract defines the interface for all executors to settle user intents, provided the preconfirmed calldata has been signed by a relayer. It:
+    
+    - Defines the relayer, an authority from [**AVS**](https://docs.skatechain.org/main/architecture/avs) that attests to and vouches for the preconfirmation results.
+    - Performs external calls to arbitrary periphery contracts
+    - Keeps records of executed tasks, ensuring eventual consistency with the kernel
+2. **Skate Periphery contract**
+    - The base contract that all periphery implementations must inherit from. It must pre-register the gateway address and restrict state mutation authority to this address.
+    - Facilitate interactions on the current chain based on directives issued from Kernel
 
 An overview of the flow from avs to periphery is shown in the diagram below:
 

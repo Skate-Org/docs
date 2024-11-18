@@ -1,0 +1,38 @@
+### A. Polymarket on Skate (LIVE now)
+
+In our recent pilot with Polymarket on TON and Solana, Skate revolutionizes the user experience, enabling users to interact with Polymarket as though it were natively integrated across chains. Users can **directly buy, sell and redeem winnings** **from their native chain** and **using their native wallet**. There is **no bridging** and **no crosschain interactions required from the user**. 
+
+Explore our app [here](https://t.me/skate_app_bot)
+
+### Current User Experience
+
+<Frame caption="Skate AMM Diagram">
+  <img src="/images/apps/PolymarketCurrentFlow.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+It is evident that there are many hurdles from bridging and also managing different user accounts that may be cumbersome and difficult to navigate for new users. 
+
+### Native User Experience 
+
+<Frame caption="Skate AMM Diagram">
+  <img src="/images/apps/PolymarketNewFlow.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+For users, we deliver a seamless, native experience, enabling them to operate with just one wallet from their native chain. For developers, we simplify the development process by allowing them to offload cross-chain interactions and management to Skate's infrastructure. Additionally, we empower their applications by introducing a unified state, eliminating redundant deployments and duplicate states, allowing developers to focus entirely on innovation rather than infrastructure management.
+
+### B. Skate AMM (Coming Soon…)
+
+Our upcoming flagship product, **Skate AMM**, is designed to elevate the native user experience across chains by introducing a revolutionary pricing and liquidity model. Built on Skate’s core design principles of **composability and single application state**, the Skate AMM leverages an **aggregated bitmap that delivers a single, unified price across all connected chains**. This pricing mechanism mirrors the proven structure of a Uniswap V3 pool, yet extends beyond single-chain limitations to provide a truly cross-chain liquidity experience.
+
+### Going beyond the traditional AMM
+
+In traditional AMMs, each chain's liquidity is isolated, limited by the constant product formula x⋅y = k , which confines liquidity depth to what is available on that specific chain. For emerging chains, this model poses a challenge as bootstrapping and scaling liquidity pools is a slow, resource-intensive process. Many chains must rely on fragmented liquidity, which can lead to inconsistent pricing and restricted access to depth.
+
+Now, Skate transforms this landscape by introducing a centralized bitmap, a single, aggregated liquidity source accessible from all chains. With this approach, a new chain can immediately access liquidity depth almost equivalent to that of the deepest liquidity source, regardless of its own native liquidity pool. When users initiate transactions on any supported chain, price is fetched from Skate AMM on Skate, ensuring consistent and accurate pricing regardless on which chain the transaction is initiated from. 
+
+<Frame caption="Skate AMM Diagram">
+  <img src="/images/apps/SkateAMM.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+Giving an example of swapping ETH to USDC. In the current multi-chain landscape, each chain typically maintains its own liquidity pool. As a result, users on different chains experience variable pricing that depends on the liquidity available locally, often leading to higher slippage and inconsistent rates, particularly on newer chains with limited liquidity depth.
+
+With **Skate AMM**, however, this experience changes entirely. Imagine a user initiating an ETH/USDC swap on a newly launched chain. Thanks to Skate’s aggregated liquidity model, which unifies and maintains pricing based on the combined liquidity across all connected chains, the user can now access pricing that reflect a deep liquidity pool. This means that even on a chain with lower liquidity, Skate provides access to competitive, stable pricing that would otherwise only be achievable on a higher liquidity network.
