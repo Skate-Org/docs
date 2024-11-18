@@ -59,13 +59,13 @@
     {
       "group": "Introduction",
       "pages": [
-        "main/introduction"
+        "main/introduction/intro"
       ]
     },
     {
       "group": "Design Architecture",
       "pages": [
-        "main/architecture/skate",
+        "main/architecture/architecture",
         {
           "group": "Skate Components",
           "pages": [
