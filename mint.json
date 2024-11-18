@@ -93,13 +93,8 @@
     {
       "group": "Stateless Apps",
       "pages": [
-        {
-          "group": "Apps",
-          "pages": [
             "main/stateless-apps/apps"
           ]
-        }
-      ]
     },
     {
       "group": "Build a Stateless App",
