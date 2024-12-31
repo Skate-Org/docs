@@ -59,7 +59,8 @@
     {
       "group": "Introduction",
       "pages": [
-        "main/introduction/intro"
+        "main/introduction/about",
+        "main/introduction/team"
       ]
     },
     {
