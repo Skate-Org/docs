@@ -41,6 +41,10 @@
     {
       "name": "SkateFi",
       "url": "skate-fi"
+    },
+    {
+      "name": "Ollies",
+      "url": "ollies"
     }
   ],
   "anchors": [
@@ -94,8 +98,8 @@
     {
       "group": "Stateless Apps",
       "pages": [
-            "main/stateless-apps/apps"
-          ]
+        "main/stateless-apps/apps"
+      ]
     },
     {
       "group": "Build a Stateless App",
@@ -112,8 +116,8 @@
     {
       "group": "EVM Integration",
       "pages": [
-       "developers/evm/kernel",
-       "developers/evm/periphery"
+        "developers/evm/kernel",
+        "developers/evm/periphery"
       ]
     },
     {
@@ -165,6 +169,12 @@
       "group": "Skate Fi",
       "pages": [
         "skate-fi/vertex"
+      ]
+    },
+    {
+      "group": "Ollies",
+      "pages": [
+        "ollies/about"
       ]
     }
   ],
