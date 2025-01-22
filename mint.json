@@ -174,7 +174,8 @@
     {
       "group": "Ollies",
       "pages": [
-        "ollies/about"
+        "ollies/about",
+        "ollies/visa"
       ]
     }
   ],
