@@ -175,7 +175,8 @@
       "group": "Ollies",
       "pages": [
         "ollies/about",
-        "ollies/visa"
+        "ollies/visa",
+        "ollies/shuffle"
       ]
     }
   ],
