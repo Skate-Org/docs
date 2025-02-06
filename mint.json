@@ -63,8 +63,15 @@
     {
       "group": "Introduction",
       "pages": [
-        "main/introduction/about",
-        "main/introduction/team"
+        {
+          "group": "Getting Started",
+          "pages": [
+            "main/introduction/getting-started",
+            "main/introduction/about",
+            "main/introduction/skatepark",
+            "main/introduction/socials"
+          ]
+        }
       ]
     },
     {
@@ -83,22 +90,11 @@
       ]
     },
     {
-      "group": "Use Cases",
-      "pages": [
-        {
-          "group": "Case Study",
-          "pages": [
-            "main/use-cases/case-study/worldcoin",
-            "main/use-cases/case-study/dex"
-          ]
-        },
-        "main/use-cases/other"
-      ]
-    },
-    {
       "group": "Stateless Apps",
       "pages": [
-        "main/stateless-apps/apps"
+        "main/stateless-apps/polymarket",
+        "main/stateless-apps/skate-amm",
+        "main/stateless-apps/skate-shuffle"
       ]
     },
     {
