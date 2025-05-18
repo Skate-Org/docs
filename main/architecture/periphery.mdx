@@ -15,7 +15,7 @@ Periphery contracts are contracts that reside on the connected chains across Ton
 
 1. **Skate Gateway**
     
-    This contract defines the interface for all executors to settle user intents, provided the preconfirmed calldata has been signed by a relayer. It:
+    This contract defines the interface for all executors to settle user intents, provided the verified calldata has been signed by a relayer. It:
     
     - Defines the relayer, an authority from [**AVS**](https://docs.skatechain.org/main/architecture/avs) that attests to and vouches for the ouput calldata results.
     - Performs external calls to arbitrary periphery contracts

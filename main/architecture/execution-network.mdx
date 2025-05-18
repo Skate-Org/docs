@@ -34,8 +34,8 @@ A high level overview of the whole Skate's flow within execution network
     periphery[Periphery Components]
     AVS[Skate AVS]
     relayer[Relayer]
-    data[Preconfirmed Data]
-    signed_data[Signed + Preconfirmed Data]
+    data[Data]
+    signed_data[AVS Attested Data]
 
     executor -- "1) reserve" --> MB
 
@@ -51,6 +51,6 @@ A high level overview of the whole Skate's flow within execution network
     executor -- "2) retrieve" --> signed_data
     signed_data -..-> executor
 
-    executor -- "3) parse signed + preconfirmed data" --> periphery
+    executor -- "3) parse attested data" --> periphery
 ```
 </Card>
