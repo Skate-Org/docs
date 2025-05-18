@@ -10,10 +10,10 @@ description: "Skate's design architecture overview"
 Skate’s infrastructure is built on three foundational layers:
 
 1. **Skate’s Hub Chain**: The central hub that handles all logic processing and stores the  application state.
-2. **Preconfirmation AVS**: An AVS deployed on Eigenlayer that facilitates the secure delegation of restaked ETH to Skate’s Executor Network. It serves as the primary source of truth, ensuring that Executors perform the required actions on destination chains.
+2. **Skate AVS**: An AVS deployed on Eigenlayer that facilitates the secure delegation of restaked ETH to Skate’s Executor Network. It serves as the primary source of truth, ensuring that Executors perform the required actions on destination chains.
 3. **Executor Network**: A network of executors responsible for executing actions as defined by the application. Each application has its own set of executors. 
 
-As a hub chain, Skate maintains and updates the shared state, providing directives for connected peripheral chains which will respond only to calldata provided by Skate. This is facilitated by our Executor Network, of which, each executor is a registered AVS operator and is responsible for executing these tasks. In the event of any dishonest behaviour, we can depend on the preconfirmation AVS as a source of truth to penalise the offending operators.
+As a hub chain, Skate maintains and updates the shared state, providing directives for connected peripheral chains which will respond only to calldata provided by Skate. This is facilitated by our Executor Network, of which, each executor is a registered AVS operator and is responsible for executing these tasks. In the event of any dishonest behaviour, we can depend on the AVS as a source of truth to penalise the offending operators.
 
 ### User flow
 
@@ -30,7 +30,7 @@ The end to end intent flow is as described below:
 **Skate** 
 
 1. Executor receives the intent and call processIntent on Skate. This creates a task that encapsulates key information for Executors for task execution. This also emits a TaskSubmitted event. 
-2. AVS validators will be actively listening for TaskSubmitted events and will verify the contents of each task. Upon achieving quorum in our Preconfirmation AVS, the relayer will issue a signature that is required for task execution 
+2. AVS validators will be actively listening for TaskSubmitted events and will verify the contents of each task. Upon achieving quorum in our AVS, the relayer will issue a signature that is required for task execution 
 
 **Destination chain**
 
