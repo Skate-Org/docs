@@ -1,0 +1,69 @@
+---
+title: "Design pattern"
+---
+
+<Frame caption="Skate's Infrastructure">
+  <img src="/images/architecture/ArchitectureDiagram.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+### Kernel vs Periphery model
+    - **Kernel:**
+
+        The **stateful core** of the protocol — responsible for maintaining canonical data such as liquidity states, bonding curves, positions, and accounting.
+        
+    - **Periphery:**
+        
+        The **stateless action layer** — a collection of modular “action boxes” that interact with the Kernel by constructing and sending messages (transactions).
+        
+        Periphery modules handle *user interactions* such as swaps, adding/removing liquidity.
+
+
+### Why stateless design matters
+        
+Traditional DeFi protocols tightly couple state and execution logic, making upgrades risky and integrations complex.
+
+- Interoperability - Simplifies cross-chain message passing — only actions, not state, travel between chains.
+- Scalability - Periphery actions can be deployed or scaled independently of Kernel state.
+
+Most existing multichain protocols replicate entire state machines across chains — each chain maintains its own pools, liquidity, and accounting. While this design simplifies deployment, it fragments state, splits liquidity, and complicates synchronization.
+
+The Kernel–Periphery model solves this by consolidating all canonical state into a single Kernel, while Peripheries act as lightweight action relayers on any chain or execution environment.
+
+
+### Comparisons to traditional multichain
+    
+Most existing multichain protocols replicate entire state machines across chains — each chain maintains its own pools, liquidity, and accounting. While this design simplifies deployment, it fragments state, splits liquidity, and complicates synchronization.
+    
+The Kernel–Periphery model solves this by consolidating all canonical state into a single Kernel, while Peripheries act as lightweight action relayers on any chain or execution environment.
+
+
+### Unified Liquidity Layer
+
+In traditional multichain deployments, liquidity is replicated — e.g., USDC-ETH pools exist separately on Chain A, Chain B, and Chain C. Each has its own reserves and bonding curve, leading to: 
+
+- Thin depth per pool
+- Inefficient capital use
+- Cross-chain price discrepancies
+
+By contrast, a Kernel state architecture aggregates all liquidity into a single global pool: 
+
+- The bonding curve, tick data, and fee accounting live in the Kernel.
+- Any Periphery (on any chain) can route liquidity to that same state.
+
+This creates a shared liquidity surface — every participant contributes to and benefits from the same pool, regardless of where the transaction originates.
+
+### Consistent Pricing Across Chains
+
+Because the Kernel holds the canonical bonding curve, all price calculations reference the same state snapshot. This eliminates chain-level price drift and reduces arbitrage inefficiency.
+
+### Higher Capital Efficiency
+
+- Liquidity is **aggregated**, not siloed.
+- LPs earn yield from **global trade volume**, not just local activity.
+- The same TVL supports **cross-chain flow** without needing redundant pools.
+
+### Frictionless Cross-Chain Interaction
+
+Since Peripheries are stateless, a transaction initiated on any chain only needs to relay an action message — not mirror or replicate state.
+
+Liquidity effectively becomes **omnichain**, managed by a single, coherent Kernel.

@@ -86,6 +86,12 @@
       ]
     },
     {
+      "group": "Stateless App Fundamentals",
+      "pages": [
+        "main/stateless-app-fundamentals/pattern"
+      ]
+    },
+    {
       "group": "Stateless Apps",
       "pages": [
         "main/stateless-apps/polymarket",
