@@ -63,15 +63,10 @@
     {
       "group": "Introduction",
       "pages": [
-        {
-          "group": "Getting Started",
-          "pages": [
-            "main/introduction/getting-started",
-            "main/introduction/about",
-            "main/introduction/skatepark",
-            "main/introduction/socials"
-          ]
-        }
+        "main/introduction/section-1-intro",
+        "main/introduction/section-1-tech-stack",
+        "main/introduction/section-1-why-they-matter",
+        "main/introduction/section-1-quick-links"
       ]
     },
     {
