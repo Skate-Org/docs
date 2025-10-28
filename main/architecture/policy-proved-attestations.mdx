@@ -1,0 +1,239 @@
+---
+title: "Policy-Proved Attestations (PPA)"
+description: "Skate's implementation for reliable cross-chain attestations on altVM ecosystems"
+---
+
+Policy-Proved Attestations (PPA) is Skate's upcoming implementation that enables EigenCloud's cross-chain attestations to work reliably on altVM ecosystems like Solana and Sui. Rather than forcing every blockchain to implement complex signature verification logic independently, PPA moves that verification into Trusted Execution Environments operated by the Execution Network. This allows Solana, Sui, and other high-throughput chains to benefit from EigenCloud's restaked economic security without architectural friction.
+
+## What Problem Does PPA Solve?
+
+While ELIP-008 successfully extends operator set replication and signature verification across EVM chains, it does not address critical challenges when scaling to high-throughput altVMs like Solana or Sui, or when building applications with tight latency requirements.
+
+### Latency and Execution Throughput
+
+Traditional AVS designs require fully aggregated quorum signatures before executing. This creates a bottleneck. On high-throughput blockchains like Solana or Sui, where thousands of transactions must clear within sub-second latency windows, waiting for full quorum can breach application SLAs.
+
+Some AVSs like EOracle only attest to data, allowing consuming applications to act on un-finalized information. But for task-based AVSs like Skate, the constraint is different. Execution directly touches capital. Traditional optimistic execution (execute now, punish later) is too risky. A malicious executor could drain liquidity and cause catastrophic losses before any slashing mechanism activates.
+
+### Cross-VM Verification Complexity
+
+ELIP-008 works smoothly on EVM chains where the CertificateVerifier contract can be deployed natively. But extending this to different virtual machines is challenging. Even if operator sets, weights, and BLS keys are replicated everywhere, implementing signature verification independently per VM becomes intractable. Many chains lack the necessary cryptographic precompiles, support different curves, or require custom verification code. Maintaining this complexity across dozens of ecosystems is neither sustainable nor secure.
+
+### Security Curve Choice
+
+ELIP-008 currently supports BN254 for efficiency on EVM. But for long-term security, Ethereum consensus uses BLS12-381. On most non-EVM chains, efficient BLS12-381 verification is either prohibitively expensive or unsupported, making it unrealistic to enforce stake-weighted verification on-chain across the board.
+
+## How Policy-Proved Attestations Work
+
+Policy-Proved Attestation (PPA) introduces a novel approach: instead of replicating full verification logic across every chain, executors enforce execution policies inside trusted execution environments (TEEs). These policies encode the conditions under which a task may execute, such as quorum requirements or stake thresholds. Skate uses Cubist's programmable policy engine to define and enforce these policies.
+
+### The Architecture
+
+**Operator Identity and Weights Live on Ethereum**: Operators register BLS public keys and stake weights in EigenCloud's Ethereum contracts. This remains the single source of truth.
+
+**Policy Verification in TEE**: Executors run inside Trusted Execution Environments using Cubist's programmable policy engine. Before execution, the TEE evaluates tasks against custom, programmable policies. A policy might specify: "Execute only if at least 60% of operator stake has attested to this task" or "For latency-sensitive swaps, require attestations from 3 fast operators." Policies are defined as WASM modules and deployed to the policy engine.
+
+**Chain-Native Approval**: Rather than sending aggregated signatures to every destination chain, the TEE produces a lightweight, chain-native approval that each destination chain can verify. This approval is small and efficient.
+
+**Slashing Remains on Ethereum**: Even if executors act on partial quorums, accountability is anchored in Ethereum. If an executor used false or invalid attestations, slashing can still be enforced on Ethereum against the operators who signed incorrectly.
+
+### Execution Flow
+
+1. **Operators Sign Off-Chain**: EigenCloud operators sign tasks using their BLS keys registered on Ethereum. Multiple operators can sign the same task.
+
+2. **Partial Attestation Set**: Instead of waiting for all operators to sign, a smaller subset provides attestations. This subset is tuned to the application's security needs and latency constraints.
+
+3. **TEE Policy Check**: An executor running in a TEE validates that the partial attestation set meets the programmable policy. For example: "At least X% of the total restaked stake has signed this task."
+
+4. **Policy-Proved Execution**: If the policy check passes, the executor acts on the task. It executes the transaction and settles results on the destination chain.
+
+5. **Post-Facto Accountability**: Once full attestations arrive, if any operator signed incorrectly or the partial set was fraudulent, the incorrect behavior is logged and slashing can be triggered on Ethereum.
+
+This model gives the best of both worlds: low-latency execution at the edge with high-stakes security guarantees anchored at the core.
+
+## Why This Matters
+
+Policy-Proved Attestation transforms executors from simple message relays into policy-enforcing agents. They act only when programmable policies anchored in EigenCloud's Ethereum contracts say it's safe to do so.
+
+This means applications can scale across chains and VMs without each chain reimplementing signature verification logic. Skate can operate on Solana's sub-second settlement without waiting for heavyweight aggregated signatures. Solana traders still benefit from EigenCloud's $4.5B+ in restaked economic security, but they experience fast, responsive execution.
+
+### Practical Benefits
+
+For **AMMs and Swaps**: Execute trades atomically and instantly across all chains. A swap on Solana settles at the same second as a swap on Ethereum. Users enjoy low-latency execution with economic security backing every trade.
+
+For **Cross-Chain Protocols**: Build complex multi-step transactions that touch multiple blockchains. The policy engine ensures all steps either succeed together or fail safely.
+
+For **Builders Across VMs**: Deploy once on the hub chain. The stateless pattern handles distribution across Solana, Sui, Ethereum, and other VMs. Skate's PPA mechanism ensures every chain's execution is verified and accountable without forcing each chain to implement complex cryptography.
+
+## For Developers: Defining Custom Policies
+
+Applications can define custom policies tailored to their security and latency needs. Policies are programmable and can encode rules like:
+
+- Quorum thresholds: "Require signatures from at least 10 operators" or "Require 50% of restaked stake"
+- Latency requirements: "For trades under 100k USD, use fast quorum. For trades over 1M USD, require 90% quorum."
+- Operator requirements: "Require at least 3 validators from diverse geographic regions"
+
+Policies are encoded as WASM modules that run inside Cubist's programmable policy engine. This allows fine-grained control over the security-latency tradeoff.
+
+### BLS Signature Verification Demo
+
+The following Rust example demonstrates how operator signatures are verified in a policy. In this demo, two operators (A and B) sign the same message using BLS keys. The policy engine verifies the aggregated signature:
+
+```rust
+use blsful::{
+    Bls12381G1Impl,
+    MultiPublicKey, MultiSignature,
+    ProofOfPossession, PublicKey, SecretKey, Signature, SignatureSchemes,
+};
+
+fn main() -> Result<(), String> {
+    // Create operator keys
+    let sk_a: SecretKey<Bls12381G1Impl> = SecretKey::from_hash(b"operator-A-seed");
+    let sk_b: SecretKey<Bls12381G1Impl> = SecretKey::from_hash(b"operator-B-seed");
+
+    let pk_a = sk_a.public_key();
+    let pk_b = sk_b.public_key();
+
+    // Message to sign
+    let msg = b"gSkate";
+
+    // Operators sign the message
+    let sig_a = sk_a.sign(msg);
+    let sig_b = sk_b.sign(msg);
+
+    // Aggregate signatures
+    let agg_sig = MultiSignature::aggregate(vec![sig_a, sig_b])?;
+
+    // Create multi-public key for expected operator set
+    let mpk_ab: MultiPublicKey<Bls12381G1Impl> =
+        MultiPublicKey::from_public_keys(&[pk_a.clone(), pk_b.clone()]);
+
+    // Verify aggregated signature
+    match agg_sig.verify(mpk_ab, msg) {
+        Ok(_) => println!("Policy check PASSED: 2-of-2 operators signed the message"),
+        Err(e) => println!("Policy check FAILED: {}", e),
+    }
+
+    Ok(())
+}
+```
+
+This demonstrates the core verification logic: if the aggregated signature matches the expected operator set and message, the policy passes.
+
+### Cubist Policy SDK Example
+
+The following example shows how to build a policy using the Cubist SDK. This policy enforces a 2-of-2 operator requirement, approving execution only if both designated operators have attested:
+
+```rust
+use cubist_policy_sdk::{error::Result, policy, AccessDecision, AccessRequest};
+use blsful::{Bls12381G1Impl, MultiPublicKey, MultiSignature, PublicKey, SecretKey};
+use serde::Deserialize;
+
+const OPERATOR_A_SEED: &[u8] = b"operator-A-seed";
+const OPERATOR_B_SEED: &[u8] = b"operator-B-seed";
+
+#[derive(Deserialize)]
+struct InvokeInput {
+    #[serde(default)]
+    msg_utf8: Option<String>,
+    #[serde(default)]
+    msg_hex: Option<String>,
+    agg_sig_hex: String, // Aggregated BLS signature
+}
+
+#[policy]
+async fn main(req: AccessRequest) -> Result<AccessDecision> {
+    // Parse the request body
+    let input = match parse_body(&req) {
+        Ok(v) => v,
+        Err(e) => return Ok(AccessDecision::Deny(format!("invalid input: {e}"))),
+    };
+
+    // Build expected operator set (A, B)
+    let (pk_a, pk_b) = operator_public_keys();
+    let mpk_ab: MultiPublicKey<Bls12381G1Impl> =
+        MultiPublicKey::from_public_keys(&[pk_a.clone(), pk_b.clone()]);
+
+    // Parse message
+    let msg = match pick_message_bytes(&input) {
+        Ok(m) => m,
+        Err(e) => return Ok(AccessDecision::Deny(format!("message parse error: {e}"))),
+    };
+
+    // Parse aggregated signature
+    let agg_sig_bytes = match parse_hex(&input.agg_sig_hex) {
+        Ok(b) => b,
+        Err(e) => return Ok(AccessDecision::Deny(format!("agg_sig_hex parse error: {e}"))),
+    };
+    let msig = match multi_sig_from_bytes(&agg_sig_bytes) {
+        Ok(s) => s,
+        Err(e) => return Ok(AccessDecision::Deny(format!("invalid aggregated signature: {e}"))),
+    };
+
+    // Verify 2-of-2 policy (both A and B must have signed)
+    match msig.verify(mpk_ab, &msg) {
+        Ok(_) => Ok(AccessDecision::Allow),
+        Err(err) => Ok(AccessDecision::Deny(format!(
+            "policy check failed: aggregated signature does not match operator set (A,B): {err:?}"
+        ))),
+    }
+}
+
+fn operator_public_keys() -> (PublicKey<Bls12381G1Impl>, PublicKey<Bls12381G1Impl>) {
+    let sk_a: SecretKey<Bls12381G1Impl> = SecretKey::from_hash(OPERATOR_A_SEED);
+    let sk_b: SecretKey<Bls12381G1Impl> = SecretKey::from_hash(OPERATOR_B_SEED);
+    (sk_a.public_key(), sk_b.public_key())
+}
+
+fn parse_body(req: &AccessRequest) -> std::result::Result<InvokeInput, String> {
+    let raw = match &req.request {
+        Some(s) => s.as_str(),
+        None => return Err("missing request body".into()),
+    };
+    serde_json::from_str::<InvokeInput>(raw).map_err(|e| format!("serde error: {e}"))
+}
+
+fn pick_message_bytes(input: &InvokeInput) -> std::result::Result<Vec<u8>, String> {
+    if let Some(s) = &input.msg_utf8 {
+        return Ok(s.as_bytes().to_vec());
+    }
+    if let Some(h) = &input.msg_hex {
+        return parse_hex(h);
+    }
+    Err("provide either msg_utf8 or msg_hex".into())
+}
+
+fn parse_hex(s: &str) -> std::result::Result<Vec<u8>, String> {
+    let s = s.strip_prefix("0x").unwrap_or(s);
+    hex::decode(s).map_err(|e| format!("hex decode error: {e}"))
+}
+```
+
+To invoke this policy, compile it to WASM and deploy to a TEE. The policy will accept a message and aggregated signature, verify that both operators A and B signed the message, and return Allow or Deny based on the result. This is the mechanism by which Executors enforce security policies before executing tasks on destination chains.
+
+## Implementation: Cubist Policy Engine
+
+The Cubist programmable policy engine provides the foundation for PPA. Policies are written in Rust, compiled to WASM, and deployed to TEEs operated by the Execution Network. The Cubist policy SDK provides primitives for:
+
+- Verifying aggregated BLS signatures
+- Checking operator stake thresholds
+- Enforcing quorum requirements
+- Validating message content against policies
+
+This toolkit is available to any EigenCloud AVS, making PPA a public good for the entire EigenCloud ecosystem.
+
+## Security Model
+
+Policy-Proved Attestations maintain all security guarantees of the EigenCloud AVS model:
+
+**Operator Accountability**: Operators face slashing if they sign fraudulent tasks. Slashing is enforced on Ethereum and is economically meaningful (proportional to their stake).
+
+**Policy Transparency**: Policies are deterministic and verifiable. Applications and external observers can inspect policies to understand exactly what conditions must be met for execution.
+
+**Chain-Specific Verification**: Each destination chain can independently verify that a task's policy approval is valid. No trust in TEEs is required for settlement finality.
+
+**Fallback Mechanisms**: If a TEE is compromised, the policy can be disputed on Ethereum. Slashing mechanisms ensure that bad actors face consequences.
+
+## Conclusion
+
+Policy-Proved Attestations extend EigenCloud's economic security model beyond Ethereum's boundaries. By encoding execution policies directly into Executors, Skate enables applications to operate reliably and responsibly across Solana, Sui, Ethereum, and other ecosystems. This shifts EigenCloud from being just Ethereum's security extension into becoming a universal trust substrate for omnichain applications.
