@@ -1,0 +1,49 @@
+---
+title: "Solana SDK Reference"
+description: "Integrate Skate AMM with Solana using the official SDK.\n\nThis SDK provides all the helpers for adding liquidity, swapping tokens, and burning liquidity."
+---
+
+---
+
+## Installation
+
+```bash
+npm install @skate-org/skate_amm_solana
+```
+
+---
+
+## SDK Initialization
+
+```typescript
+import { Connection, Keypair } from "@solana/web3.js";
+import { Wallet } from "@coral-xyz/anchor";
+import { SkateSDK, Environment } from "@skate-org/skate_amm_solana";
+
+// Use the appropriate RPC URL
+const connection = new Connection(process.env.RPC_URL_902!, "confirmed");
+
+// Create wallet from keypair
+const keypair = Keypair.generate(); // or load from file
+const wallet = new Wallet(keypair);
+
+// Initialize for STAGING environment
+const sdkStaging = new SkateSDK(connection, Environment.STAGING, wallet);
+
+// Or initialize for PRODUCTION environment
+const sdkProduction = new SkateSDK(connection, Environment.PRODUCTION, wallet);
+```
+
+> 💡 Tip: Use the devnet or testnet endpoints for local testing.
+> You can find program IDs in the [SDK README ↗](https://www.npmjs.com/package/@skate-org/skate_amm_solana)
+
+---
+
+## Reference
+
+- [SDK README ↗](https://www.npmjs.com/package/@skate-org/skate_amm_solana#installation)
+- Check the README for:
+  - Configure token pair
+  - Address conversion
+  - Important notes
+  - _and more.._

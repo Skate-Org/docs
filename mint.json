@@ -94,9 +94,11 @@
       ]
     },
     {
-      "group": "Build a Stateless App",
+      "group": "Chain-Specific Integration",
       "pages": [
-        "developers/stateless-app-cookbook"
+        "main/chain-specific-integration/solana-sdk-reference",
+        "main/chain-specific-integration/sui-sdk-reference",
+        "main/chain-specific-integration/evm-sdk-reference"
       ]
     },
     {
