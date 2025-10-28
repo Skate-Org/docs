@@ -3,23 +3,210 @@ title: "Core Contracts Overview"
 description: "Core contracts deployed on Skate chain"
 ---
 
+import { Frame, CodeGroup, Accordion } from 'mintlify';
+
 ## Kernel Core Contracts
 The kernel components are responsible for managing the **unified state** and **executing essential logic**.
 
-1. **Message Box**
-    
-    A single contract that defines interface for *all Skate Apps* to register user intent and corresponding execution tasks. It serves as the entry point for creating intents, and all executors will source this contract for pending actions.
-    
-2. **Skate App**
-    
-    The base contract that all kernel implementations must inherit from. Skate App does
-    
-    - Transforming user intents to imperative tasks for executions.
-    - Pushing relevant data into Message Box.
-    - Link the kernel app to all periphery apps on destination chains.
+The components on the hub are:
+- **Kernel Manager (control plane):** The entrypoint for intents. It checks permissions, routes calls and emits tasks (including reverts).
+- **Kernel Logic/State (data plane):** This contains your app’s storage and core math.
+- **Shared infra:** This includes a mailbox/registry for executors and endpoints.
+
+This structure is app-agnostic and can be used for AMMs, orderbooks, RFQ engines, auctions, games, allowlists, and more.
 
 An overview of the interaction with Kernel is shown in the diagram below:
 
 <Frame caption="Kernel Diagram">
   <img src="/images/architecture/KernelOverview.png" style={{ borderRadius: '0.5rem' }} />
 </Frame>
+
+### Bytes-first messaging
+
+All cross-boundary payloads are **`bytes`**. Each app defines its own encoding and math.
+
+<CodeGroup>
+```solidity Intent (periphery → hub)
+struct Intent {
+  bytes32 actionId;        // unique within origin chain (see below)
+  bytes32 user;            // cross-VM user id
+  uint64  originChainId;   // CHAIN enum
+  uint8   originVmType;    // e.g., 1=EVM, 2=TON, 3=SVM, 4=Move, ...
+  address appAddress;      // kernel manager on hub
+  bytes   appCalldata;     // app-defined
+  uint64  deadline;        // optional
+}
+```
+
+```solidity Task (hub → periphery)
+struct Task {
+  bytes32 actionId;
+  bytes32 recipient;       // cross-VM recipient
+  uint64  destChainId;     // explicit destination chain id
+  uint8   destVmType;      // destination VM
+  address appAddress;      // kernel manager reference
+  bytes   taskCalldata;    // app-defined settlement/refund payload
+  bool    isRevert;        // true = refund/revert on source
+}
+```
+</CodeGroup>
+
+### Cross-VM addresses as `bytes32`
+
+- **Ethereum/EVM:** 20 bytes left-padded to 32.
+- **Solana (SVM):** base58 pubkey decoded to 32 bytes.
+- **Sui/Aptos (Move):** already 32 bytes; store as-is.
+
+All comparisons on the kernel use `bytes32`.
+
+### Settlement, failure, refunds
+
+- **Success:** task targets a **specific `destChainId` and `destVmType`**; periphery gateway verifies and settles from staged funds.
+- **Failure (correct):** kernel emits a **revert task** back to the **source** periphery. That periphery runs the app’s refund logic for **that action only**.
+- **Idempotent:** both settlement and revert must be safe to replay and must reject duplicates by `actionId`.
+
+### Action identity and chain ids
+
+- **Action ID:** unique **per origin chain**, computed as a hash of `(actionCount || chainId)`.
+- **Chain ids (wrappers used for SVM/Move where needed):**
+
+```solidity CHAIN enum
+enum CHAIN {
+  SKATE       = 5050,
+  SOLANA      = 901,
+  ECLIPSE     = 902,
+  SOON        = 903,
+  SUI         = 1001,
+  APTOS       = 1002,
+  MOVEMENT    = 1003,
+  BASE        = 8453,
+  ARBITRUM    = 42161,
+  BSC         = 56,
+  MANTLE      = 5000,
+  OPTIMISM    = 10,
+  ETHEREUM    = 1,
+  HYPERLIQUID = 999,
+  PLUME       = 98866,
+  ZG          = 16661
+}
+```
+
+### How any app uses this
+
+- **Periphery:** stage assets (if any), pack **action bytes**, emit events.
+- **Kernel manager:** validate, call core logic, emit **task(s)** with the right `destChainId`.
+- **Core logic/state:** keep all app state on the hub.
+- **Periphery gateway:** verify task, settle or refund **only that action**.
+
+This is the whole model: one hub state, many periphery endpoints, and clean bytes-based messages.
+
+## Kernel Composition
+
+Here’s how the kernel fits together. It links user wallets across chains, accepts signed intents from apps, emits tasks for off-chain executors, and tracks settlement.
+
+### What each contract does
+- **AccountRegistry**: Binds a user’s wallets across VM types (EVM and non-EVM) into one account.
+- **MessageBox**: Validates an intent, prevents duplicates, emits tasks, and marks them as settled.
+- **SkateApp (base)**: App scaffold. Runs app logic, returns tasks, and hands them to MessageBox.
+
+### How they work together
+1. The relayer registers VM types and maps chain IDs.
+2. A user links wallets. EVM signatures are checked on-chain. Non-EVM is recorded for off-chain checks.
+3. The user signs an intent. The app calls `processIntent`.
+4. App logic returns `Task[]`. `MessageBox` verifies the intent and emits `TaskSubmitted` events.
+5. Executors pick up tasks and execute on the target chain(s).
+6. The relayer calls `setTaskAsExecuted` to mark completion.
+
+This ensures one user, many chains, a clean intent flow, and no double execution.
+
+<Accordion title="AccountRegistry">
+    **Goal**: Keep one account number per user across VMs.
+
+    **What it stores**:
+    - **VM list**: `vm[vmType]` and `vmCount`.
+    - **Chain → VM type**: `chainIdToVmType`.
+    - **Wallet → account**: `references[keccak256(vmType, wallet)]`.
+    - **Account → wallets**: `accounts[accountNumber]` (array of `{vmType, addr}`).
+    - **Admin**: `_relayer`.
+
+    **Key calls**:
+    - `initialize(relayer)`: sets the relayer and seeds VM type 1 as "EVM".
+    - `registerVm(name)`: add a VM type (relayer only).
+    - `setVmTypesToChainIds(vmTypes[], chainIds[])`: map chains (relayer only).
+    - `bindWallet(vmType1, wallet1, vmType2, wallet2, sig1, sig2)`:
+        - VM types must be registered and in increasing order.
+        - If `vmType1 == 1`, `sig1` must recover to `wallet1` using the bind hash.
+        - If both wallets are new → create a new account and attach both.
+        - If one is already bound → attach the other to the same account.
+        - If both are already bound (to anything) → reject (no merging two existing accounts).
+
+    **Reads**: `getWallets`, `getWalletBindingStatus`, `getAccountNumber`, `getVmTypeByChainId`, `getVmCount`.
+
+    **Signature preimage (EVM binding)**:
+    `getBindEVMHash(wallet1, vmType2, wallet2)` encodes `(0, wallet1, vmType2, wallet2)` and uses the standard Ethereum signed message prefix.
+
+    **Permissions**:
+    - **Owner**: upgrades, set relayer.
+    - **Relayer**: VM admin + wallet binding entrypoint.
+</Accordion>
+
+<Accordion title="MessageBox">
+    **Goal**: Be the outbox everyone trusts. Validate once. Emit tasks once. Mark settlement once.
+
+    **What it stores**:
+    - `_executorRegistry`: who can originate task submissions (`tx.origin` is checked).
+    - `_relayer`: marks settlement.
+    - `_taskId`: running counter.
+    - `_isTaskExecuted[taskId]`: settlement flag.
+    - `_isActionExecuted[chainId][actionId] → taskId`: global dedup index.
+    - `_nonce[user]`: per-user nonces for replay protection.
+
+    **Key calls**:
+    - `submitTasks(tasks, intent)`:
+        - Caller must be the app: `msg.sender == intent.intentData.appAddress`.
+        - `tx.origin` must be an approved executor.
+        - `intent.vmType` must be non-zero.
+        - If EVM (`vmType == 1`) and `intent.signature` is present:
+            - Recover signer from `keccak256( user, nonce[user], appAddress, keccak256(intentCalldata) )` with the Ethereum signed message prefix.
+            - Signer must equal `user`.
+        - Non-EVM signatures: emitted as an event for off-chain checks.
+        - Increments the user nonce after checks.
+        - Dedup rule: for each `(srcChainId, actionId)`, ensure it wasn’t executed before. Duplicates inside the same batch are allowed and skip the history check.
+        - Emits one `TaskSubmitted` per task and records `actionId → taskId`.
+    - `setTaskAsExecuted(taskId, settlementInfo)`:
+        - Relayer marks a task as executed. Emits `TaskExecuted`.
+
+    **Reads**: `executorRegistry`, `taskId`, `isTaskExecuted(taskId)`, `isActionExecuted(chainId, actionId)`, `nonce(user)`, `getDataHashForUser(...)`.
+
+    **Why it’s safe**:
+    App-only submission, executor allow-list, per-user nonce, and `(chainId, actionId)` dedup keep intents honest and idempotent.
+</Accordion>
+
+<Accordion title="SkateApp (abstract base)">
+    **Goal**: Make writing apps simple. You focus on building tasks; the kernel handles the rest.
+
+    **What it stores**:
+    - `_messageBox` and `_accountRegistry`.
+    - `_chainIdToPeripheryContract[chainId] → bytes32`.
+    - `_chainIds[]` for discovery.
+
+    **Key calls**:
+    - `__SkateApp_init(messageBox, accountRegistry)`: wire dependencies.
+    - `setChainToPeripheryContract(chainId, peripheryContract)`:
+        - Set or clear the periphery address for a chain.
+        - Keeps `_chainIds` in sync.
+    - `processIntent(intent)`:
+        - Calls `address(this).functionCall(intent.intentData.intentCalldata)`.
+        - Expects your function to return `IMessageBox.Task[]`.
+        - Submits those tasks to `MessageBox`.
+
+    **Extras**: `onlyContract` modifier is available for internal orchestration.
+
+    **Lookups**: `chainIdToPeripheryContract`, `messageBox`, `accountRegistry`, `getChainIds`.
+</Accordion>
+
+### Roles
+- **Owner (per contract)**: Upgrades and wiring.
+- **Relayer**: Registry admin; marks settlement in MessageBox.
+- **Executor (EOA)**: Must be whitelisted; originates task submissions.
+- **App contract**: Must be the direct caller of `submitTasks`.
