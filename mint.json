@@ -78,6 +78,7 @@
           "pages": [
             "main/architecture/kernel",
             "main/architecture/avs",
+            "main/architecture/policy-proved-attestations",
             "main/architecture/periphery"
           ]
         },
