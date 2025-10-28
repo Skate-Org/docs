@@ -1,0 +1,48 @@
+---
+title: "Skate: Infrastructure for Stateless Applications"
+---
+
+Skate is infrastructure that enables applications to operate as stateless entities across multiple blockchains simultaneously. Think of it like Instagram, which runs on iOS, Android, macOS, and Windows as a single cohesive application.
+
+In traditional Web2 architecture, applications follow a client-server model. Instagram's core logic and user data live on servers. The application adapts and deploys across different client platforms, each with its own UI and platform-specific handling, but all clients interact with the same backend state. The user's feed, DMs, and follower graph exist once, centrally, regardless of which device they're using.
+
+<Frame caption="Stateless Apps: One Global State Across Chains">
+  <img src="/images/introduction/stateless-apps.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+Skate brings this proven architectural pattern to blockchain. It enables a single application to maintain unified state on a hub chain while deploying lightweight client contracts (periphery) across Solana, Ethereum, Sui, and other virtual machines. All components operate in concert as one cohesive system.
+
+## Stateless Applications: The Pattern
+
+A stateless application decouples core business logic and canonical state from execution and settlement concerns.
+
+**The Kernel (Hub Chain, or "Server")**
+- Maintains the single source of truth for application state
+- Executes all core business logic
+- Enforces protocol invariants and safety guarantees
+- Generates deterministic task outputs describing state updates
+
+**The Periphery (Spoke Chains, or "Clients")**
+- Handles user-facing interactions on individual blockchains
+- Manages local asset custody and user onboarding
+- Stages user intents (actions) for processing on the kernel
+- Receives task callbacks and finalizes execution results
+- Maintains no core state. It is purely a reflection of hub-chain truth
+
+<Frame caption="Skate Core Architecture">
+  <img src="/images/introduction/core-architecture.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+## How Execution Flows
+
+1. **User Action on Spoke Chains**: A user interacts with a periphery contract on their preferred blockchain (Solana, Ethereum, Sui) and creates an Action. This Action describes the user's intent for what they want to do.
+
+2. **Executor Relay to Kernel**: The Execution Network listens to periphery contracts across all chains and picks up these Actions. Executors relay them to the kernel contracts deployed on the hub chain.
+
+3. **Kernel Processing**: The kernel validates the Action against canonical state and applies the application's core business logic. If the action requires effects on other chains (such as settling a swap), the kernel produces a Task. This Task describes the exact state update and settlement requirements.
+
+4. **Task Attestation**: The EigenCloud AVS operators review the Task and attest to its correctness. Once the attestations reach sufficient quorum, the task is considered validated.
+
+5. **Task Settlement on Spoke Chains**: After achieving quorum, the validated Task is settled via callbacks on the destination periphery chains. Assets are transferred and local views update to match kernel truth.
+
+The result: a truly omnichain application where users remain on their preferred blockchain while accessing applications designed for unified, cross-chain operation. No bridging complexity. No liquidity fragmentation. One canonical state.

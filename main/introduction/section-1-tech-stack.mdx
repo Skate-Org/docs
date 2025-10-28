@@ -1,0 +1,33 @@
+---
+title: "Skate's Technology Stack"
+---
+
+Skate's infrastructure is composed of three independent, interoperable layers. This modular design allows the stack to evolve by swapping individual components without affecting the overall system.
+
+<Frame caption="Skate Technology Stack">
+  <img src="/images/introduction/skate-tech-stack.jpg" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+## Execution Network
+
+The Execution Network consists of independent relayers and operators who listen to Actions across all periphery contracts on supported blockchains. Their primary responsibility is to pick up these Actions, relay them to kernel contracts on the hub chain for processing, and then settle the resulting Tasks back on destination spoke chains.
+
+This network operates openly and permissionlessly. New executors can join at any time, which creates competition and redundancy. No single executor is critical to system operation. Skate does not prescribe specific executor implementations or select preferred operators. The network remains fluid and evolves based on market incentives.
+
+## Hub Chain Infrastructure
+
+The kernel and all core application logic runs on a dedicated hub chain. Skate's hub chain is built on the OP Stack and runs as an Ethereum L2. It uses Avail for data availability and EigenDA as a sidecar to ensure data is available for verification across all spoke chains and by the Execution Network.
+
+## EigenCloud AVS: Restaked Economic Security
+
+Skate's cross-chain callbacks are secured by EigenCloud AVS, an autonomous verification service built on restaking infrastructure. EigenCloud operators, who have committed capital via restaking on Ethereum, attest to the correctness of Tasks before they settle on spoke chains.
+
+The security model works as follows:
+
+**Restaked Economic Security** means operators have committed capital on Ethereum and face slashing risk for attesting to incorrect state transitions. This economic backing ensures that validators have skin in the game and are economically incentivized to validate Tasks correctly.
+
+**AVS Operators and Quorum** comprise a decentralized network of node operators running Skate's verification logic. Operators earn fees for producing valid attestations. Once Tasks reach sufficient operator quorum (configurable by application), they are considered validated and can proceed to settlement on spoke chains.
+
+**Othentic Components** power the attestation infrastructure. These components enable efficient signature verification and quorum management at scale.
+
+The result: cross-chain callbacks are backed by billions of dollars in restaked capital, providing the same economic security guarantees that power Ethereum consensus. Tasks do not settle on spoke chains until they have been attested by a quorum of EigenCloud operators, ensuring correctness and safety.

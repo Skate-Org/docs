@@ -1,0 +1,45 @@
+---
+title: "Why They Matter"
+---
+
+## The Problem: Fragmented Application State and Ecosystem Redundancy
+
+Traditional blockchain development follows a "fork everywhere" model. Every application redeploys its logic on every chain. This creates two fundamental inefficiencies:
+
+**Fragmented Application State** occurs when the same application maintains separate state on multiple chains. A DEX on Ethereum has completely different liquidity and pricing than its Arbitrum deployment. Users on different chains cannot access the same markets. An AMM pool on Ethereum cannot serve demand on Solana. Liquidity is siloed. Prices diverge. Cross-chain interactions require complex bridging and become error-prone.
+
+**Ecosystem Redundancy** means every general-purpose blockchain reimplements common infrastructure from scratch. Liquidity protocols, lending systems, identity services, and other foundational legos are built independently on each chain. This creates massive duplication of effort and capital inefficiency. Each ecosystem bootstraps from zero.
+
+## The Solution: Unified Application State via Stateless Design
+
+Skate introduces a new model where applications maintain a single source of truth across all blockchains. Rather than forking applications, developers deploy once and let Skate handle multi-chain distribution.
+
+<Frame caption="Application-Level Interoperability">
+  <img src="/images/introduction/app-level-interop.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+**Skate AMM: The Flagship Application** demonstrates the power of this pattern. Instead of deploying separate AMM instances on Ethereum, Solana, Sui, and Arbitrum with fragmented liquidity, Skate AMM maintains one canonical pool state on the hub chain. This unified pool serves all users across all blockchains simultaneously.
+
+## Advantages of Unified Pool State
+
+**Consolidated Liquidity** means all trading volume across all chains flows into a single pool. Ethereum traders, Solana traders, Sui traders, and Arbitrum traders all interact with the same liquidity. The pool grows deeper with every transaction on every chain.
+
+**Unified Pricing** ensures consistent execution across blockchains. A swap on Solana executes at the same price as a swap on Ethereum in the same block. Price arbitrage between chains disappears. Users get better execution regardless of which blockchain they trade on.
+
+**Capital Efficiency** eliminates the need to bootstrap separate liquidity pools on each chain. Instead of splitting capital across eight fragmented pools, liquidity providers deposit once into one unified pool. That capital serves global demand. Better fills. Better fees.
+
+**Atomic Cross-Chain Execution** means complex multi-chain trades happen atomically through a single transaction. Arbitrage traders can execute trades across chains without bridging risk or timing issues. Applications can compose seamlessly across blockchains.
+
+## Practical Implications
+
+### For Liquidity Providers
+Provide liquidity once and serve all blockchains simultaneously. Earn fees from aggregate trading volume across Solana, Sui, Ethereum, Arbitrum, Base, and BNB Chain. No fragmented pools competing for capital.
+
+### For Traders
+Access unified, deep liquidity regardless of which blockchain you use. Execute trades at consistent prices. Better slippage and execution quality compared to siloed pools on individual chains.
+
+### For Application Builders
+Build once, deploy everywhere. Skate's stateless pattern eliminates the "fork everywhere" burden. Deploy to all blockchains simultaneously without reimplementation. Security anchored in EigenCloud's restaked capital, not optimistic assumptions or custom implementations.
+
+### For Ecosystem Builders
+Reduce redundancy in crypto infrastructure. Common services like the Skate AMM exist once and scale across all chains rather than being rebuilt independently. Resources are freed to build higher-level applications rather than reimplementing foundational legos on every chain.
