@@ -98,6 +98,14 @@
       ]
     },
     {
+      "group": "Stateless App Fundamentals",
+      "pages": [
+        "main/stateless-app-fundamentals/pattern",
+        "main/stateless-app-fundamentals/skate-amm",
+        "main/stateless-app-fundamentals/skate-shuffle"
+      ]
+    },
+    {
       "group": "Build a Stateless App",
       "pages": [
         "developers/stateless-app-cookbook"
