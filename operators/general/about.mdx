@@ -1,45 +1,71 @@
 ---
-title: 'About Skate AVS'
+title: "EigenCloud AVS Overview"
 ---
 
 <Note>
   This document is intended for [EigenLayer Operator](https://docs.eigenlayer.xyz/eigenlayer/operator-guides/operator-introduction) and requires understanding of [EigenLayer AVS](https://docs.eigenlayer.xyz/eigenlayer/avs-guides/avs-developer-guide)
 
-  Additionally, a general understanding of [Skate architecture](/main/architecture/skate) is assumed.
+Additionally, a general understanding of [Skate architecture](/main/architecture/skate) is assumed.
+
 </Note>
 
-## Preliminary
+## What is EigenCloud, Othentic?
 
-Skate AVS utilizes EigenLayer restaked assets to ensure the economic security of all cross-chain actions. The AVS is responsible for verifying AVS tasks, which are bundled calldata and necessary information for [Skate executors](/main/architecture/execution-network) to settle cross-chain transactions. The AVS verified data output is then signed by the [Skate relayer](/main/architecture/execution-network) before it is ready to be executed.
+The **Skate** architecture secures its core multi-chain operations using an **Actively Validated Service (AVS)** named **EigenCloud**, which is powered by the **Othentic AVS framework**. This integration allows Skate to leverage the **pooled economic security of Ethereum Restaking** to establish a verifiable, trust-minimized execution layer.
 
-## Design
+- **EigenCloud:** This is the name for Skate's AVS. Its primary function is to **provide verifiable, finality-ready proof of execution for a bundle of Skate tasks** destined for the same target chain, allowing for batched, trust-minimized multi-chain transaction settlement. It achieves this by creating a single, cryptographically secure **Merkle Root** to represent the integrity of the batch.
 
-Please refer to the [Skate AVS](/main/architecture/avs) for a detailed discussion of Skate AVS design.
+- **Othentic:** This is the underlying AVS framework that provides the foundational tooling (CLI, governance, and attestation contracts) to manage the AVS. It is responsible for collecting the validated **`AvsProofData`** (which includes the Merkle Root) from Aggregators and submitting it to the on-chain `AttestationCenter`.
 
-## Source code
+The combined system ensures that complex, cross-chain state management, which is crucial for the Stateless AMM's unified liquidity, is secured by a dedicated, economically-bonded set of verifiers.
 
-Skate uses [Othentic's stack](/operators/general/othentic), the contracts code is not availble for public at the moment.
+## Security Model (Restaking, Slashing)
+
+The security is rooted in the **EigenLayer restaking model**, extending Ethereum's trust layer to Skate's custom validation logic.
+
+- **Restaking:** Operators secure their role by restaking ETH/LSTs, providing **capital collateral** against misbehavior.
+
+- **Slashing:** Malicious activity results in a loss of this collateral. It is enforced for critical security breaches involving the validation proof: **attesting to or aggregating an invalid Merkle Root** for a batch of Skate Tasks, or for providing a fraudulent Merkle proof to attest to the inclusion of a task that was never legitimately executed/submitted. Any failure to correctly run the core integrity checks (e.g., `hashSkateTask` or `buildMerkleTree`) is a violation of the AVS's service contract.
+
+## AVS Operators
+
+**AVS Operators are decentralized participants** who run the specialized node software required to provide security for the EigenCloud AVS.
+
+**Roles & Components:** Operators are required to run several core services:
+
+- **Performer Node (`/performer`):** Retrieves individual `SkateTask` messages from the `Skate MessageBox` and bundles them based on destination chain (`chainId/vmType`) constraints.
+
+- **Attester Node:** Performs the local validation, primarily by calculating the **Task Hashes** and constructing the **Merkle Tree** for the bundle using the `constructProofFromTaskBundle` logic.
+
+- **Aggregator Node:** Collects and aggregates the resulting `AvsProofData` (including the Merkle Root) from Attesters, verifies consensus, and submits the final encoded proof data (`encodeTaskDataMapForSolidity`) to the Othentic smart contract.
+
+- **Tracking:** Operator activity and AVS health can be tracked via the AVS Dashboard (`/dashboard`).
+
+The hardware requirements will be dependent on the role of operator. Refers to operator [roles](/operators/roles) section for further details.
+
+## Economic Security Guarantees
+
+The Economic Security Guarantees quantify the trust provided to Skate users.
+
+- **Pooled Security:** The total value of ETH restaked ensures a high **Cost of Corruption**, making a hostile takeover uneconomical.
+
+- **Slashing-Based Guarantee:** The security commitment is to maintain sufficient restaked capital to penalize any fraudulent proof submission. This target is calibrated to **secure the aggregate liquidity of the Stateless AMM against invalid cross-chain state updates and fraudulent settlement claims, ensuring the finality and integrity of all cross-VM trades and the unified liquidity model**.
+
+## Source Code
+
+Skate uses [Othentic's stack](/operators/general/othentic), the contracts code is not available for public at the moment.
 
 <Note>
-  Though the code is not public, architecture and attestation framework can be found at [https://othentic.gitbook.io/main/avs-framework/smart-contracts/othentic-bls-obls](https://othentic.gitbook.io/main/avs-framework/smart-contracts/othentic-bls-obls)
+  Though the code is not public, architecture and attestation framework can be
+  found at
+  [https://othentic.gitbook.io/main/avs-framework/smart-contracts/othentic-bls-obls](https://othentic.gitbook.io/main/avs-framework/smart-contracts/othentic-bls-obls)
 </Note>
-
----
 
 <Note>
-  Off-chain AVS services code will be publicly available at [https://github.com/Skate-org] before mainnet. For now, stay tune for more update!
+  Off-chain AVS services code is now live and publicly available at
+  [https://github.com/Skate-Org/skate-avs](https://github.com/Skate-Org/skate-avs).
 </Note>
 
-## Rewards structure
+## Rewards Structure
 
-We are working on finalizing the rewards structure. Detailed will be discussed once our PoC for public go live.
-
-## Operator requirements
-
-All Skate AVS operators must be a registered EigenLayer Operator. In addition, the operator need to register to Skate AVS contracts.
-
-The hardware requirements will be dependent on the role of operator. Refers to operator [roles](/operators/roles) section for further details
-
-<Note>
-
-</Note>
+We are working on finalizing the rewards structure. Details will be discussed once our PoC for public go live.
