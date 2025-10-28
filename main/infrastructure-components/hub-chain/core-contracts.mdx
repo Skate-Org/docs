@@ -1,0 +1,25 @@
+---
+title: "Core Contracts Overview"
+description: "Core contracts deployed on Skate chain"
+---
+
+## Kernel Core Contracts
+The kernel components are responsible for managing the **unified state** and **executing essential logic**.
+
+1. **Message Box**
+    
+    A single contract that defines interface for *all Skate Apps* to register user intent and corresponding execution tasks. It serves as the entry point for creating intents, and all executors will source this contract for pending actions.
+    
+2. **Skate App**
+    
+    The base contract that all kernel implementations must inherit from. Skate App does
+    
+    - Transforming user intents to imperative tasks for executions.
+    - Pushing relevant data into Message Box.
+    - Link the kernel app to all periphery apps on destination chains.
+
+An overview of the interaction with Kernel is shown in the diagram below:
+
+<Frame caption="Kernel Diagram">
+  <img src="/images/architecture/KernelOverview.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
