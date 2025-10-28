@@ -90,19 +90,17 @@
       ]
     },
     {
+      "group": "Stateless App Fundamentals",
+      "pages": [
+        "main/stateless-app-fundamentals/pattern"
+      ]
+    },
+    {
       "group": "Stateless Apps",
       "pages": [
         "main/stateless-apps/polymarket",
         "main/stateless-apps/skate-amm",
         "main/stateless-apps/skate-shuffle"
-      ]
-    },
-    {
-      "group": "Stateless App Fundamentals",
-      "pages": [
-        "main/stateless-app-fundamentals/pattern",
-        "main/stateless-app-fundamentals/skate-amm",
-        "main/stateless-app-fundamentals/skate-shuffle"
       ]
     },
     {
