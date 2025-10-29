@@ -1,16 +1,31 @@
 ---
-title: "Skate AVS"
-description: "Skate's AVS design and Integration of Othentic's stateless rollup framework"
+title: "Skate EigenCloud AVS"
+description: "Overview of Skate EigenCloud AVS and Othentic's stack"
 ---
 
-<Note>
-  This document assumes a prerequisite understanding of the Skate Architecture, which can be found [here](/main/architecture/skate#skates-kernel-and-periphery)
-</Note>
+## What is EigenCloud, Othentic?
 
-Skate AVS verifies all execution calldata submitted by executors, which is published to the [Message Box contract](/main/architecture/kernel#kernel-components). 
+The **Skate EigenCloud AVS** secures all its multi-chain operations, powered by **EigenCloud** (contracts and infra) and **Othentic** (tooling and configs).
 
+- **EigenCloud:** The infrastructure layer (formerly EigenLayer) that provides the contracts and an unified operator network for restaked security. More at [https://eigencloud.xyz/](https://www.eigencloud.xyz/)
 
-## Network components
+- **Othentic:** The AVS framework that provides the foundational tooling (CLI, governance, and attestation contracts) to manage the AVS. More At [https://othentic.xyz/](https://www.othentic.xyz/)
+
+## EigenCloud Security Model (Restaking, Slashing)
+
+The security is rooted in the **EigenCloud restaking model** based on Economic Security:
+
+- **Restaking:** Operators secure their role by restaking ETH/LSTs, providing **capital collateral** against misbehavior.
+
+- **Slashing:** Malicious activity results in a loss of this collateral. It is enforced for any critical security breach amongst AVS's operators, e.g. attesting to or submitting an invalid proof (which include tasks that was never legitimately executed/submitted).
+
+Evidently, the Economic Security Guarantees provides:
+
+- **Pooled Security:** The total value of ETH restaked ensures a high **Cost of Corruption**, making a hostile takeover uneconomical.
+
+- **Slashing-Based Guarantee:** The security commitment is to maintain sufficient restaked capital to penalize any fraudulent proof submission. This target is calibrated to **secure the aggregate liquidity of the Stateless AMM against invalid cross-chain state updates and fraudulent settlement claims**. 
+
+## Skate AVS Network Components
 
 The Othentic Stack utilizes libp2p for inter-node communication to ensure a robust, efficient, and decentralized attestation process. Four types of nodes are involved:
 
@@ -18,21 +33,19 @@ The Othentic Stack utilizes libp2p for inter-node communication to ensure a robu
   Collect tasks from the Message Box, sign them, and then publish them to aggregator via a JSON-RPC server. For data-intensive applications, the Task Performer acts as an authority to source/pre-validate data for the AVS network, such as an application that requires Oracle
 
 2. **Task Aggregator**<br/>
-  The Aggregator monitors and aggregates attestations within the network. It receive preformer update from performer and publish the task to a **p2p channel**, effectively requesting attester to particiapte in the attestation process.
+  The Aggregator monitors and aggregates attestations within the network. It receive performer update from performer and publish the task to a **p2p channel**, effectively requesting attester to participate in the attestation process.
 
 3. **Attesters**<br/>
   Subscribe to the **p2p channel** and sign using BLS signatures to participate in the attestation process. These nodes must ensure the validity of the underlying task data (executor calldata) and are therefore subject to rewards or slashing.
 
-4. **Bootstrapers**<br/>
+4. **Bootstrappers**<br/>
   These robust nodes keep the p2p network alive by maintaining and updating the Distributed Hash Table for peer discovery.
 
 <Note>
   Performer, Aggregator, and Attester must be an AVS operator.
 </Note>
 
-Together, these nodes ensure the attestation process is robust, scalable, and maintains a fair reward/penalty distribution for all involved parties.
-
-The flow is depicted in the diagram below:
+A sample attestation flow is depicted in the diagram below:
 
 <Card title="AVS Flow Diagram">
 
@@ -83,9 +96,9 @@ The flow is depicted in the diagram below:
 </Card>
 
 
-## AVS smart contracts
+## AVS Smart Contracts
 
-As mentioned, Skate leverages [Othentic's stateless rollup framework](https://othentic.gitbook.io/main/stateless-rollup-framework/abstract), which comes with the following set of contracts:
+As mentioned, Skate leverages [Othentic's stack](https://docs.othentic.xyz/main/welcome/architecture#smart-contracts), which comes with the following core contracts:
 
 1. **AVS Governance**<br/>
   A set of governance contracts oversees the registration, slashing, and reward distribution for all AVS operators. These contracts operate on Ethereum L1, where all EigenLayer restakers reside, as one must be an EigenLayer staker to participate as an AVS operator.
