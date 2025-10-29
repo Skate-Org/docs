@@ -1,48 +1,67 @@
 ---
 title: "Overview"
-description: "How cross-chain intents are processed by Skate?"
+description: "High level overview of Skate Execution Network"
 ---
 
-Skate Execution Network consists of **a transaction relayer**, **a set of executors** along with **Executor Registries** on kernel and every supported chain:
+## Components
 
-1. **Executors**<br/>
+Skate Execution Network consists of **a set of executors**, **a transaction relayer**, and **Executor Registries** on kernel and periphery chains:
+
+1. **Executors**
+
   These specialized entities, either from Skate or third-party providers, handle user intents across blockchains. They must manage their own cross-chain inventories and execution plans. In exchange, they receive fees from users who need their transactions settled through Skate.
 
-2. **Relayer**<br/>
-  The relayer oversees the confirmation results from [Skate AVS](/main/architecture/avs) and attests to them by signing, effectively preparing the calldata for the executor.
+2. **Relayer**
 
-3. **Executor Registry**<br/>
-  The Executor Registry manages the addition and removal of executors. Skate's design ensures Consistency and Partition tolerance (CP system). As a result, an executor must register on a specific periphery chain before being allocated a related intent.
+  The relayer oversees the confirmation results from [Skate AVS](/main/infrastructure-components/eigencloud-avs) and attests to them, effectively preparing the required settlement data for executors.
 
----
-A high level overview of the whole Skate's flow within execution network
+3. **Executor Registry**
+
+  The Executor Registry manages the addition and removal of executors. 
+
+## Execution Flow
+
+<Steps>
+  <Step title="Watch Intent">
+    Watch intents on ActionBox from user across periphery. Either via API or self-indexing.
+  </Step>
+  <Step title="Reserve Intent">
+    Await approved intents by Skate AVS. Then reserve interested intents to fill on Kernel Message Box
+  </Step>
+  <Step title="Retrieve approved tasks">
+    Intents flow through Kernel Apps are then processed into tasks. Executors need to settle the registered intents based on these tasks information
+  </Step>
+  <Step title="Settle Tasks">
+    Once approved tasks is acknowledged. Executors schedule settlement on corresponding periphery chains, effectively end a Skate Intent flow
+  </Step>
+</Steps>
+
+The flow diagram below depicts an intent processed by Execution Network
 
 <Card title="Execution Network flow">
 
 ```mermaid
   flowchart TB
-    executor[Executor]
-    MB[Message Box]
-    periphery[Periphery Components]
-    AVS[Skate AVS]
+    periphery["Periphery Apps (e.g. Skate AMM)"]
+    AB["Action Box (Periphery)"]
+    executor[Skate Executor]
+    MB["Message Box (Kernel)"]
     relayer[Relayer]
-    data[Data]
-    signed_data[AVS Attested Data]
+    signed_data[Approved Tasks]
 
-    executor -- "1) reserve" --> MB
+    executor -- "1) Watch intents" --> AB
+    AB -..-> executor
 
-    AVS -- watch --> MB
-    MB -. tasks .-> AVS
+    executor -- "2) input Intent to reserve execution" --> MB
 
-    AVS -- validate --> data
-    relayer -- "1) watch" --> data
+    MB -. tasks .-> relayer
+    relayer -- "watch " --> MB
 
-    data -. tasks data .-> relayer
-    relayer -- "2) validate + sign" --> signed_data
+    relayer -- "validate & sign" --> signed_data
 
-    executor -- "2) retrieve" --> signed_data
+    executor -- "3) retrieve approved tasks" --> signed_data
     signed_data -..-> executor
 
-    executor -- "3) parse attested data" --> periphery
+    executor -- "4) settle with attested data" --> periphery
 ```
 </Card>

@@ -27,12 +27,12 @@
       "url": "introduction"
     },
     {
-      "name": "Developers",
-      "url": "developers"
+      "name": "Skate AMM",
+      "url": "skate-amm"
     },
     {
-      "name": "Skate AVS Operators",
-      "url": "skate-avs-operators"
+      "name": "Resources & Support",
+      "url": "resources-and-support"
     }
   ],
   "anchors": [
@@ -71,7 +71,8 @@
         {
           "group": "Execution Network",
           "pages": [
-            "main/infrastructure-components/execution-network/overview"
+            "main/infrastructure-components/execution-network/overview",
+            "main/infrastructure-components/execution-network/onboard-as-executor"
           ]
         },
         {
@@ -86,32 +87,57 @@
     {
       "group": "Stateless App Fundamentals",
       "pages": [
-        "main/stateless-app-fundamentals/pattern"
+        "main/stateless-app-fundamentals/pattern",
+        "main/stateless-app-fundamentals/skate-amm"
       ]
     },
     {
-      "group": "Chain-Specific Integration",
+      "group": "About Skate AMM",
       "pages": [
-        "main/chain-specific-integration/solana-sdk-reference",
-        "main/chain-specific-integration/sui-sdk-reference",
-        "main/chain-specific-integration/evm-sdk-reference"
+        "skate-amm/introduction"
       ]
     },
     {
-      "group": "General information",
+      "group": "For Liquidity Providers",
       "pages": [
-        "skate-avs-operators/general/about",
-        "skate-avs-operators/general/othentic"
+        "skate-amm/liquidity-providers/fee-mechanism",
+        "skate-amm/liquidity-providers/actionables",
+        "skate-amm/liquidity-providers/boosted-apy"
       ]
     },
     {
-      "group": "Specialized Roles",
+      "group": "For Developers",
       "pages": [
-        "skate-avs-operators/roles/performer",
-        "skate-avs-operators/roles/aggregator",
-        "skate-avs-operators/roles/attester",
-        "skate-avs-operators/roles/bootstrapper",
-        "skate-avs-operators/roles/syncer"
+        {
+          "group": "Chain-Specific Integration",
+          "pages": [
+            "skate-amm/developers/chain-specific-integration/sdk-overview",
+            "skate-amm/developers/chain-specific-integration/solana-sdk-reference",
+            "skate-amm/developers/chain-specific-integration/sui-sdk-reference",
+            "skate-amm/developers/chain-specific-integration/evm-sdk-reference"
+          ]
+        },
+        "skate-amm/developers/swap-lifecycle"
+      ]
+    },
+    {
+      "group": "Deployments",
+      "pages": [
+        "skate-amm/deployments/core-contracts",
+        {
+          "group": "Pools",
+          "pages": [
+            "skate-amm/deployments/pools/skate-usdc"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Resources & Support",
+      "pages": [
+        "resources-and-support/links",
+        "resources-and-support/audits",
+        "resources-and-support/faq"
       ]
     }
   ],
