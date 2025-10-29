@@ -1,0 +1,38 @@
+---
+title: "Sui SDK Reference"
+description: "Integrate with Skate AMM on Sui network using the official SDK.\n\nThis SDK supports both staging and production environments, which can be selected upon initialization."
+---
+
+---
+
+## Installation
+
+```bash
+npm install @skate-org/skate_amm_sui_sdk
+```
+
+---
+
+## SDK Initialization
+
+```typescript
+import SkateAmmSdk, {
+  Environment,
+  PoolType,
+} from "@skate-org/skate_amm_sui_sdk";
+
+// Initialize the SDK for the production environment
+const sdk = new SkateAmmSdk(Environment.Production);
+```
+
+> ⚙️ Note: This instance will be pre-configured with the correct contract addresses and pool configurations for the selected environment.
+
+---
+
+## Reference
+
+- [SDK README ↗](https://www.npmjs.com/package/@skate-org/skate_amm_sui_sdk#installation)
+- Check the README for:
+  - Setup and configuration
+  - Usage example
+  - _and more.._
