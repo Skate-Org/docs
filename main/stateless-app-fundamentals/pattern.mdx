@@ -7,23 +7,20 @@ title: "Design pattern"
 </Frame>
 
 ### Kernel vs Periphery model
-    - **Kernel:**
+- **Kernel:**
+    The **stateful core** of the protocol — responsible for maintaining canonical data such as liquidity states, bonding curves, positions, and accounting.
 
-        The **stateful core** of the protocol — responsible for maintaining canonical data such as liquidity states, bonding curves, positions, and accounting.
-        
-    - **Periphery:**
-        
-        The **stateless action layer** — a collection of modular “action boxes” that interact with the Kernel by constructing and sending messages (transactions).
-        
-        Periphery modules handle *user interactions* such as swaps, adding/removing liquidity.
+- **Periphery:**
+    The **stateless action layer** — a collection of modular “action boxes” that interact with the Kernel by constructing and sending messages (transactions).
+    Periphery modules handle *user interactions* such as swaps, adding/removing liquidity.
 
 
 ### Why stateless design matters
-        
+
 Traditional DeFi protocols tightly couple state and execution logic, making upgrades risky and integrations complex.
 
-- Interoperability - Simplifies cross-chain message passing — only actions, not state, travel between chains.
-- Scalability - Periphery actions can be deployed or scaled independently of Kernel state.
+- **Interoperability** - Simplifies cross-chain message passing — only actions, not state, travel between chains.
+- **Scalability** - Periphery actions can be deployed or scaled independently of Kernel state.
 
 Most existing multichain protocols replicate entire state machines across chains — each chain maintains its own pools, liquidity, and accounting. While this design simplifies deployment, it fragments state, splits liquidity, and complicates synchronization.
 
@@ -31,9 +28,9 @@ The Kernel–Periphery model solves this by consolidating all canonical state in
 
 
 ### Comparisons to traditional multichain
-    
+
 Most existing multichain protocols replicate entire state machines across chains — each chain maintains its own pools, liquidity, and accounting. While this design simplifies deployment, it fragments state, splits liquidity, and complicates synchronization.
-    
+
 The Kernel–Periphery model solves this by consolidating all canonical state into a single Kernel, while Peripheries act as lightweight action relayers on any chain or execution environment.
 
 

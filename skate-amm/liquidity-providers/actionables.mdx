@@ -1,0 +1,17 @@
+---
+title: 'How to Add & Remove Liquidity'
+---
+
+<Frame caption="Add Liquidity">
+  <img src="/images/skate-amm/AddLiquidity.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+When LPs add liquidity on **Skate AMM**, the position is recorded in the **hub’s canonical pool state**, allowing it to support trades and accrue fees across all connected chains.
+
+While tokens remain on the chain where they are deposited, the corresponding **liquidity range and fee accounting** are synchronized globally through the hub. LPs can deposit tokens within a **custom or full price range** — similar to Uniswap V3-style concentrated liquidity.
+
+- Use **Full range** for passive exposure  
+- Use **Custom range** to concentrate liquidity around active prices for higher capital efficiency
+
+All liquidity updates — additions, removals, or range adjustments — are executed natively on the selected chain and reflected in the unified hub state, ensuring that LPs’ positions remain active participants in the global fee-sharing mechanism.
+

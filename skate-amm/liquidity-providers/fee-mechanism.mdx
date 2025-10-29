@@ -1,0 +1,54 @@
+---
+title: 'Fee mechanism'
+description: 'Skate AMM LP mechanics'
+---
+
+## Efficient LP via Skate AMM
+
+In traditional multi-chain ecosystems, liquidity is fragmented across networks — each AMM on each chain maintains its own reserves, positions, and fee accruals.
+
+This fragmentation lowers **capital efficiency**: liquidity often sits idle on quieter chains, and the same price ranges must be funded multiple times across networks.
+
+Skate AMM removes this inefficiency through a **unified liquidity state** hosted on the hub chain.
+
+When liquidity is added on any periphery chain, it becomes part of the **same global pool**, contributing to the shared price curve that governs all connected markets.
+
+As a result, LP capital is utilized across chains rather than confined to one.
+
+### How Efficiency Improves
+
+1. **Global utilization of liquidity**  
+   Liquidity provided on one chain earns from trading activity on all chains.  
+   Even if local volume is low, that liquidity remains productive as part of the global pool.
+
+2. **Reduced redundancy**  
+   Instead of replicating depth at the same price points on multiple networks, Skate aggregates all positions into one canonical price curve.  
+   This means less total liquidity is required to achieve the same effective slippage and price stability.
+
+3. **Smoothed fee income**  
+   Global fee sharing distributes trading fees from the entire network to all active LPs, reducing income variance and keeping capital yield more consistent.
+
+4. **Range-based precision retained**  
+   LPs still define custom price ranges for their positions, maintaining Uniswap V3-style control — but those ranges now participate in cross-chain price discovery and fee accrual.
+
+### Capital Efficiency Comparison
+
+| Feature | **Siloed AMMs (per-chain)** | **Skate AMM (unified)** |
+|----------|------------------------------|--------------------------|
+| **Liquidity scope** | Confined to a single chain | Shared across all connected chains |
+| **Price curve** | Independent per network | Canonical global curve on hub |
+| **Fee accrual** | Local only | Aggregated and distributed globally |
+| **Idle liquidity risk** | High — unused on low-volume chains | Low — all liquidity contributes to global activity |
+| **Effective depth per unit capital** | Moderate | Higher, via aggregated tick bitmap |
+| **Income volatility** | Dependent on local chain demand | Smoothed by network-wide fee sharing |
+| **Capital efficiency** | Fragmented | **System-wide and optimized** |
+
+## Fee Accrual
+
+As swaps occur across chains, trading fees accrue globally and are distributed **pro-rata** to all active LPs based on their position size and range.
+
+## Displayed APY
+
+The displayed **APY** reflects the **aggregated yield from all connected networks** — not just the local chain.  
+
+This means liquidity provided on one chain earns from **cross-chain trading activity**, thanks to Skate’s Unified Liquidity Model.
