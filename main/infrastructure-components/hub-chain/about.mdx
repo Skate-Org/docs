@@ -1,4 +1,66 @@
 ---
 title: "About Skate Hub Chain"
-description: "Skate Hub Chain or Skate Chain ..."
+description: "Skate Hub Chain is the state layer for apps that live across many chains. It’s an OP Stack optimistic rollup that settles to Ethereum and uses Avail for data availability."
 ---
+
+import { Card, CardGroup } from 'mintlify';
+
+Skate Hub Chain is the **state layer** for apps that live across many chains.
+It’s an **OP Stack optimistic rollup** that **settles to Ethereum** and **uses Avail for data availability**.
+
+Here’s how it works:
+
+- **Logic + state live on Skate.**
+- **Assets stay on periphery chains.**
+- **Executors** carry messages between them.
+
+So an app can run one global state (pools, orderbooks, scores, whatever) while users keep funds on their home chain. AMMs are one example, but the same pattern fits orderbooks, auctions, games, allowlists—any app that wants shared state and local settlement.
+
+## Role in Unified State Management
+The hub is the **single source of truth**.
+Periphery chains are **I/O + asset custody**.
+
+The flow is as follows:
+
+1. A user calls a **periphery** contract/program.
+2. An executor turns that into an **intent** and submits it to the app’s **kernel** on Skate.
+3. The kernel updates **canonical state** and emits a **task**.
+4. The executor delivers the task back to the **destination periphery** to settle funds or issue a refund.
+
+The result is one shared state across all chains, with funds moving only on the chains that actually hold them.
+
+## Deployment Details
+
+<CardGroup cols={2}>
+  <Card title="Network">
+    **Network:** Skate Mainnet<br/>
+    **Chain ID:** `5050`<br/>
+    **Rollup Stack:** OP Stack<br/>
+    **Settlement Layer:** Ethereum (`1`)<br/>
+    **RPC:** `https://rpc.skatechain.org`<br/>
+    **WS:** `wss://rpc.skatechain.org/ws`<br/>
+    **Explorer:** `https://scan.skatechain.org`
+  </Card>
+  <Card title="Operators / Versions">
+    `op-node v1.9.3`<br/>
+    `op-geth v1.101408.0`<br/>
+    `op-contracts v1.6.0`<br/>
+    <br/>
+    **Batcher:**<br/> `0xE8a61a47CA8373998726F644eE83cfAed4541326`<br/>
+    <br/>
+    **Proposer:**<br/> `0xF5cb182AF28D42092739cf04276636DCaA9CdAd2`
+  </Card>
+  <Card title="Data Availability">
+    **Avail** (primary): sender<br/>
+    `5GCc8penY3wGsmaq8ZgeTW7TgEfN76tZGvAnUZ2ZqmMbPWqj`, server `v1.1.0`<br/>
+    <br/>
+    **EigenDA** (integrated): RPC `disperser.eigenda.xyz:443`, signer<br/>
+    `0x4fDbD273b8D2C1c429a7E3078063c49528aA8264`<br/>
+    <br/>
+    **Alt DA (plasma-style) proxy:**<br/>
+    `https://skate-mainnet-altda-daproxy.alt.technology`
+  </Card>
+  <Card title="Configs">
+    Public **genesis** and **rollup** JSONs are available for operators.
+  </Card>
+</CardGroup>
