@@ -1,6 +1,6 @@
 ---
 title: "Sui SDK Reference"
-description: "Integrate Skate AMM with the Sui network using the official SDK.\n\nThis SDK supports both staging and production environments, which can be selected upon initialization."
+description: "Integrate with Skate AMM on Sui network using the official SDK.\n\nThis SDK supports both staging and production environments, which can be selected upon initialization."
 ---
 
 ---
@@ -21,8 +21,8 @@ import SkateAmmSdk, {
   PoolType,
 } from "@skate-org/skate_amm_sui_sdk";
 
-// Initialize the SDK for the staging environment
-const sdk = new SkateAmmSdk(Environment.Staging);
+// Initialize the SDK for the production environment
+const sdk = new SkateAmmSdk(Environment.Production);
 ```
 
 > ⚙️ Note: This instance will be pre-configured with the correct contract addresses and pool configurations for the selected environment.

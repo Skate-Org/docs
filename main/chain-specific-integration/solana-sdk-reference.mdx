@@ -1,6 +1,6 @@
 ---
 title: "Solana SDK Reference"
-description: "Integrate Skate AMM with Solana using the official SDK.\n\nThis SDK provides all the helpers for adding liquidity, swapping tokens, and burning liquidity."
+description: "Integrate with Skate AMM on Solana using the official SDK.\n\nThis SDK provides all the helpers for adding liquidity, swapping tokens, and burning liquidity."
 ---
 
 ---
@@ -27,15 +27,9 @@ const connection = new Connection(process.env.RPC_URL_902!, "confirmed");
 const keypair = Keypair.generate(); // or load from file
 const wallet = new Wallet(keypair);
 
-// Initialize for STAGING environment
-const sdkStaging = new SkateSDK(connection, Environment.STAGING, wallet);
-
 // Or initialize for PRODUCTION environment
 const sdkProduction = new SkateSDK(connection, Environment.PRODUCTION, wallet);
 ```
-
-> 💡 Tip: Use the devnet or testnet endpoints for local testing.
-> You can find program IDs in the [SDK README ↗](https://www.npmjs.com/package/@skate-org/skate_amm_solana)
 
 ---
 
