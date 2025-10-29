@@ -1,0 +1,115 @@
+---
+title: 'Skate AMM Fundamentals'
+---
+
+### What is Skate AMM?
+
+Our flagship product, **Skate AMM**, is a **crosschain AMM** designed to elevate the native user experience across chains by introducing a revolutionary pricing and liquidity model.  
+Built on Skate’s core design principles of **composability and single application state**, the Skate AMM leverages an **aggregated bitmap that delivers a single, unified price across all connected chains**.  
+
+This pricing mechanism mirrors the proven structure of a Uniswap V3 pool, yet extends beyond single-chain limitations to provide a truly cross-chain liquidity experience.
+
+---
+
+### Stateless Pattern in Action
+
+Adopting the **stateless pattern** that governs all Skate-based applications, the core state for the AMM is hosted on **Skate (the hub chain)**.  
+
+This implies that:
+
+- The **hub chain (Skate)** hosts the **canonical state** of all AMM pools — including tick bitmaps, liquidity positions, and global fee accumulators.
+- Each connected **periphery chain** (e.g., Solana, Sui, Ethereum, etc.) maintains **minimal periphery state** to enable fast, native execution that references the hub’s canonical state during runtime.
+
+---
+
+### Source Chain (Periphery)
+
+1. **Quote retrieval**  
+   The user or front-end fetches a quote, either off-chain via an aggregator or directly from pool data hosted on **Skate**.  
+   This ensures the swap references the canonical, hub-validated state.
+
+2. **Swap initiation**  
+   The user submits a swap action on the source chain. Their input asset (e.g., USDT) is transferred from the user’s wallet into the **local periphery pool**.
+
+3. **Action registration**  
+   The swap intent is emitted as an event and indexed by the **executor network**, which observes periphery activity and relays actions to the hub chain for deterministic settlement.
+
+---
+
+### Hub Chain (Skate)
+
+1. **Canonical execution**  
+   The executor triggers the swap logic within the **Skate kernel**, referencing the pool’s canonical state (tick bitmap, liquidity ranges, and fee growth).
+
+2. **State update**  
+   The pool state is atomically updated on the hub — reflecting new price ticks, fee accruals, and global liquidity deltas.
+
+3. **Task creation**  
+   Once executed, the kernel emits a **task event** containing details such as:
+   - user address  
+   - tokenIn / tokenOut  
+   - slippage  
+   - amountIn / amountOut  
+   - deadline  
+
+   This task is indexed and queued by executors for dispatch to the relevant destination chain.
+
+---
+
+### Destination Chain (Periphery)
+
+1. **Task execution**  
+   The executor submits the verified task to the periphery contract on the destination chain.
+
+2. **Asset delivery**  
+   The pool vault on that chain transfers the output asset (e.g., USDC) to the user’s wallet.  
+   Final settlement mirrors the hub’s canonical record, ensuring consistency across chains.
+
+---
+
+### Unified Liquidity Model
+
+At the heart of Skate AMM lies its **Unified Liquidity Model** — a system that transcends traditional, chain-specific liquidity fragmentation.  
+
+Instead of each network maintaining its own isolated pool, Skate aggregates liquidity across all connected chains into a **single virtual pool** governed by a unified price curve.
+
+Under this model:
+
+- **All price discovery and liquidity accounting occur on the hub chain (Skate)**.  
+- **Actual tokens remain native and transacted on the respective periphery chains.**
+
+The hub maintains only the **logical state** of the pool — tick bitmaps, liquidity positions, and fee growth — serving as the single source of truth for pricing and liquidity distribution.
+
+Each periphery chain executes swaps using the **price and outcome computed by the hub**, moving tokens locally to complete settlement.  
+The hub remains the source of truth for all pricing and liquidity accounting.
+
+This architecture ensures:
+
+- **Unified pricing:** every trade on any chain references the same hub-validated state root, maintaining global price consistency.  
+- **Cross-chain depth aggregation:** liquidity from all chains contributes to a single price curve, maximizing liquidity depth and minimizing slippage.  
+- **Stateless yet verifiable execution:** periphery environments execute locally without persisting pool logic, ensuring lightweight composability.  
+- **Atomic global updates:** the hub serializes all fee, tick, and liquidity updates, preserving deterministic order across chains.
+
+In effect, **pricing and state are centralized on the hub**, while **liquidity and execution remain decentralized across periphery chains**, giving users the experience of trading against a single global pool — regardless of where they are.
+
+---
+
+### Multichain Pricing Curve
+
+<Frame caption="Aggregated pricing vs siloed pricing">
+  <img src="/images/skate-amm/SkateAMM.png" style={{ borderRadius: '0.5rem' }} />
+</Frame>
+
+
+Each connected chain (e.g., Solana, Sui, Ethereum) maintains its own **local liquidity bitmap** for the same pair — such as ETH/USDC — reflecting liquidity distribution and tick activity within that chain’s execution environment.
+
+On **Skate**, these individual price maps are **aggregated into a single canonical curve** on the hub.
+
+This unified curve represents the **global price state**, combining depth and liquidity from every chain.
+
+Tokens remain on their **native chains**, while **pricing and liquidity accounting** are derived centrally on Skate.
+
+This ensures every trade, regardless of where it originates, references the **same global ETH/USDC price curve**.
+
+> In essence: fragmented local pools → aggregated global price.  
+> **One price, many chains.**
