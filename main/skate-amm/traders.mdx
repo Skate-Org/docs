@@ -1,0 +1,183 @@
+---
+title: 'For Traders'
+---
+
+Skate provides SDKs for interacting with the **Skate AMM** across multiple chains:
+
+- **Kernel SDK (core logic)** — [@skate-org/skate-app-amm](https://www.npmjs.com/package/@skate-org/skate-app-amm)
+- **Sui Periphery SDK** — [@skate-org/skate_amm_sui_sdk](https://www.npmjs.com/package/@skate-org/skate_amm_sui_sdk)
+- **Solana Periphery SDK** — [@skate-org/skate_amm_solana](https://www.npmjs.com/package/@skate-org/skate_amm_solana)
+
+These SDKs enable traders, bots, and market makers to quote and execute swaps directly on Skate AMM’s **unified liquidity layer**. Please refer to the respective repos for the most updated changes and documentation. 
+
+---
+
+### Swap Lifecycle
+
+To execute a swap through the Skate AMM:
+
+---
+
+#### 1. Get a Quote via Kernel SDK
+
+Use the **Kernel SDK** to fetch a swap quote that references the canonical hub state.
+
+```tsx
+import { getSwapQuote, EnvMode } from "@skate-org/skate-app-amm";
+
+// change id accordingly 
+const chainId = 901
+const quote = await getSwapQuote(
+  chainId,
+  {
+    tokenA: tokenIn,
+    tokenB: tokenOut,
+    slippageLimit: 0.001,
+    amount: BigInt(userAmount),
+  },
+  "PRODUCTION" as EnvMode
+);
+```
+### 2. Execute Swap via Periphery SDKs
+
+Execute the quote using the periphery SDK corresponding to your target chain:
+
+On EVM: 
+```tsx
+import { privateKeyToAccount } from "viem/accounts";
+import {
+  createPublicClient,
+  Chain,
+  http,
+  createWalletClient,
+  WalletClient,
+  Account,
+  defineChain,
+} from "viem";
+import { peripheryPoolAdapter } from "@skate-org/skate-app-amm";
+
+const account = privateKeyToAccount(PRIVATE_KEY as `0x${string}`);
+const wallet = createWalletClient({
+  chain,
+  account,
+  transport: http(RPC_URL),
+});
+
+const recipient = RECIPIENT_ADDRESS; // in bytes32 format
+
+const swapData: `0x${string}` = peripheryPoolAdapter.getSwapCalldata({
+  recipient: evmContext!.account!.address as `0x${string}`,
+  destChainId: chainId,
+  destVmType: 1,
+  amount: amount,
+  zeroForOne: zeroForOne,
+  sqrtPriceLimitX96: sqrtPriceLimitX96,
+  minAmountOut: minAmountOut,
+});
+
+const executableRequest = await wallet.prepareTransactionRequest({
+  account: account,
+  chain: wallet.chain,
+  data: swapData,
+  to: poolAddress,
+});
+
+const signedTx = await wallet.signTransaction(executableRequest);
+const tx = await wallet.sendRawTransaction({
+  serializedTransaction: signedTx,
+});
+
+return tx;
+```
+
+On Solana:
+```tsx
+import { SkateSDK, Environment } from "@skate-org/skate_amm_solana";
+import {
+  Transaction,
+  sendAndConfirmTransaction,
+  PublicKey,
+  ComputeBudgetProgram,
+  Keypair,
+} from "@solana/web3.js";
+import { BN } from "@coral-xyz/anchor";
+
+// Set up Solana config
+const secretKey = Uint8Array.from(bs58.decode(PRIVATE_KEY));
+const keypair = Keypair.fromSecretKey(secretKey);
+const publicKey = keypair.publicKey;
+const svmWallet = new Wallet(keypair);
+
+const sdk = new SkateSDK(connection, Environment.PRODUCTION, svmWallet);
+
+const swapIx = await sdk.getSwapIx(
+  config,
+  chainId, 
+  base58ToEthBytes32(keypair.publicKey.toString()),
+  3,
+  zeroForOne,
+  amount,
+  sqrtPriceLimitX96,
+  minAmountOut, 
+  Buffer.from([]),
+  publicKey, 
+  publicKey
+);
+
+const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+  microLamports: SOLANA_PRIORITY_FEE_MICRO_LAMPORTS,
+});
+
+const swapTx = new Transaction().add(priorityFeeIx);
+swapTx.add(...swapIx);
+
+await sendAndConfirmTransaction(connection, swapTx, [svmContext.keypair], {
+  commitment: "confirmed",
+});
+
+```
+
+On Sui:
+```tsx
+import { PoolType } from "@skate-org/skate_amm_sui_sdk";
+import SkateAmmSdk, { Environment } from "@skate-org/skate_amm_sui_sdk";
+import { SuiClient } from "@mysten/sui/client";
+
+// Set up Sui client and SDK
+const client = new SuiClient({ url: rpcUrl });
+const sdk = new SkateAmmSdk(Environment.PRODUCTION);
+
+// Fetch pool config
+const poolConfig = sdk.getPoolConfig(poolType);
+if (!poolConfig)
+  throw new Error(`Pool configuration not found for PoolType: ${poolType}`);
+
+const userOwner = USER_ADDRESS; // in bytes32 format
+const tokenInTypeSwap = zeroForOne ? poolConfig.token0 : poolConfig.token1;
+
+const coinsTokenInSwap = await client.getCoins({
+  owner: userOwner,
+  coinType: tokenInTypeSwap,
+});
+
+const tx = await suiContext.sdk.swap.swap({
+  poolType,
+  coinsIn: coinsTokenInSwap.data,
+  recipientStr: userOwner,
+  zeroForOne,
+  amountSpecified: amount,
+  amountIsPositive: BigInt(amount) > BigInt(0),
+  sqrtPriceLimitX96Str: sqrtPriceLimitX96,
+  destChainId: String(chainId),
+  destVmType: 4,
+  extraData: "",
+  actionBoxSeed: new Date().getTime().toString(),
+  amountIn: amount,
+});
+
+const result = await client.signAndExecuteTransaction({
+  transaction: tx,
+  signer: keypair,
+});
+
+```
