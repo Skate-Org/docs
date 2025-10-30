@@ -1,0 +1,263 @@
+---
+title: "Example: Build your first stateless app"
+description: "Walkthrough a minimal cross-chain counter app built on Skate"
+---
+
+
+**App capabilities** — Managing a shared counter that can be incremented and used across chains.
+
+## 1. Kernel implementation
+
+### A. Skate APP Template
+
+```solidity
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity 0.8.26;
+
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { IMessageBox } from "./interfaces/IMessageBox.sol";
+import { ISkateApp } from "./interfaces/ISkateApp.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { IExecutorRegistry } from "../common/IExecutorRegistry.sol";
+
+abstract contract SkateApp is OwnableUpgradeable, ISkateApp {
+  using Address for address;
+
+  IMessageBox _messageBox;
+  mapping(uint256 chainId => bytes32 peripheryContract) _chainIdToPeripheryContract;
+  uint256[] _chainIds;
+
+  modifier onlyContract() {
+    require(msg.sender == address(this), OnlyContractCanCall());
+    _;
+  }
+
+  function __SkateApp_init(address messageBox_) public initializer {
+    __Ownable_init(msg.sender);
+    _messageBox = IMessageBox(messageBox_);
+  }
+
+  function setChainToPeripheryContract(uint256 chainId, bytes32 peripheryContract, bytes memory metaData)
+    external
+    virtual
+    override
+    onlyOwner
+  {
+    metaData; // silence warning
+    if (peripheryContract == bytes32(0)) {
+      uint256 length = _chainIds.length;
+      for (uint256 i = 0; i < length; i++) {
+        if (_chainIds[i] == chainId) {
+          _chainIds[i] = _chainIds[length - 1];
+          _chainIds.pop();
+          break;
+        }
+      }
+    } else if (_chainIdToPeripheryContract[chainId] == bytes32(0)) {
+      _chainIds.push(chainId);
+    }
+
+    _chainIdToPeripheryContract[chainId] = peripheryContract;
+    emit PeripheryContractSet(peripheryContract, chainId);
+  }
+
+  function processIntent(IMessageBox.Intent calldata intent) external virtual override {
+    IExecutorRegistry _executorRegistry = IExecutorRegistry(_messageBox.executorRegistry());
+    require(_executorRegistry.isExecutor(msg.sender), NotAnExecutor(msg.sender));
+
+    IntentOutput[] memory outputs = _handleSkateIntent(intent.kernelMethod, intent.kernelData);
+    require(outputs.length > 0, EmptyIntentHandlerOutput(intent.kernelMethod, intent.kernelData));
+
+    uint256 srcChainId = intent.chainId;
+    bytes32 actionId = intent.actionId;
+    bytes32 srcApp = chainIdToPeripheryContract(srcChainId);
+    require(srcApp != bytes32(0), UnregisteredPeripheryOnChainId(srcChainId));
+    require(srcApp == intent.srcApp, UnauthorizedIntentFromApp(actionId, srcChainId, intent.srcApp));
+
+    IMessageBox.Task[] memory tasks = new IMessageBox.Task[](outputs.length);
+    for (uint256 i = 0; i < tasks.length; i++) {
+      IntentOutput memory output = outputs[i];
+      bytes32 targetApp = chainIdToPeripheryContract(output.chainId);
+      require(targetApp != bytes32(0), UnregisteredPeripheryOnChainId(output.chainId));
+      tasks[i] = IMessageBox.Task({
+        appAddress: targetApp,
+        user: intent.user,
+        actionId: actionId,
+        srcChainId: srcChainId,
+        srcVmType: intent.vmType,
+        destChainId: output.chainId,
+        destVmType: output.vmType,
+        method: output.method,
+        data: output.data
+      });
+    }
+    _messageBox.submitTasks(tasks, intent); // This line is reachable in derived contracts
+  }
+
+  function _handleSkateIntent(string calldata, bytes calldata) internal virtual returns (IntentOutput[] memory outputs) {
+    // NOTE: This empty output will revert if not implemented
+  }
+
+  function chainIdToPeripheryContract(uint256 chainId) public view override returns (bytes32 peripheryContract) {
+    require((peripheryContract = _chainIdToPeripheryContract[chainId]) != bytes32(0), ZeroPeripheryContractAddress());
+  }
+
+  function messageBox() external view override returns (address) {
+    return address(_messageBox);
+  }
+
+  function getChainIds() external view override returns (uint256[] memory chainIds) {
+    return _chainIds;
+  }
+
+  function setMessageBox(address newMessageBox) external onlyOwner {
+    _messageBox = IMessageBox(newMessageBox);
+  }
+}
+```
+
+### B. Kernel Counter App Implementation
+
+```solidity
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity 0.8.26;
+
+import { SkateApp } from "src/skate/kernel/SkateApp.sol";
+import { IMessageBox } from "src/skate/kernel/interfaces/IMessageBox.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+
+contract KernelInstance is SkateApp, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+  constructor() {
+    _disableInitializers();
+  }
+  function initialize(address messageBox_) public initializer {
+    __ReentrancyGuard_init();
+    __SkateApp_init(messageBox_);
+  }
+  function _authorizeUpgrade(address newImplementation) internal override(UUPSUpgradeable) onlyOwner { }
+
+  // Universal Skate Intent handler, MUST BE IMPLEMENT
+  // all counter increment from source chains
+  function _handleSkateIntent(
+    string calldata signature,
+    bytes calldata data
+  ) internal override returns (IntentOutput[] memory) {
+    if (keccak256(bytes(signature)) == keccak256(bytes("increaseCounter,uint256,uint256"))) {
+      (uint256 destChain, uint256 destVm) = abi.decode(data, (uint256, uint256));
+      return increaseCounter(destChain, destVm);
+    } else {
+      revert UnknownIntentMsg(signature);
+    }
+  }
+
+  uint256 count = 0;
+  function _increaseCounter() internal returns (uint256) {
+    count++;
+    return count;
+  }
+  
+  // NOTE: Core logic to emit the count on a target chain
+  // chainId, vmType ref section 5
+  function increaseCounter(uint256 destChainId, uint256 destVmType) internal returns (IntentOutput[] memory outputs) {
+    uint256 nextNumber = _increaseCounter();
+    outputs = new IntentOutput;
+    outputs[0] =
+      IntentOutput({ method: "count,uint256", data: abi.encode(nextNumber), chainId: destChainId, vmType: destVmType });
+  }
+}
+```
+
+<Note>
+Take note of the `increaseCounter()` and `_handleSkateIntent()` implementations.
+
+The **signature format** for methods should follow this structure:
+
+1. Method Name:
+    The first part of the signature must be the **method name**.
+
+2. Parameter Types
+  The subsequent parts represent the **input parameter types**, separated by commas.  
+  These types **must be supported by Solidity**.
+
+3. Cross-Chain Type Handling
+  For **non-EVM chains**, type transpilation occurs at the **MessageBox** level.  
+  For example, Solana doesn’t support `uint256` — emit it as `uint128` or `uint64`, then cast to `uint256` at the Kernel layer.
+
+4. Format Rule
+  All parts of the signature must be **comma-separated** with no spaces.
+  Example: `increaseCounter,uint256,uint256`
+</Note>
+
+
+## 2. Periphery Implementation (EVM example)
+
+```solidity
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity 0.8.26;
+
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import { SkateAppPeriphery } from "src/skate/periphery/SkateAppPeriphery.sol";
+
+/**
+ * @notice A POC application to demonstrate the working of ActionBox. The function performRequestOnDestChain
+ * is called to create an action on the ActionBox contract that triggers the cross-chain call on
+ * a periphery contract on another chain.
+ */
+contract PeripheryInstance is SkateAppPeriphery, ReentrancyGuardUpgradeable, UUPSUpgradeable {
+  constructor() {
+    _disableInitializers();
+  }
+  function initialize(address gateway_, address actionBox_, address kernelApp_) public initializer {
+    __ReentrancyGuard_init();
+    __SkateAppPeriphery_init(gateway_, actionBox_, kernelApp_);
+  }
+
+  /**
+   * @notice performs a simple request of increasing counter on chain specified by
+   * the parameter {destChainId}.
+   */
+  function increaseCounterOnDestChain(uint256 destChainId, uint256 destVmType) external {
+    _createSkateAction("increaseCounter,uint256,uint256", abi.encode(destChainId, destVmType));
+  }
+
+  function matchMethod(string calldata method, string memory target) internal pure returns (bool) {
+    return keccak256(bytes(method)) == keccak256(bytes(target));
+  }
+
+	/**
+   * @notice Called by gateway via `receiveSkateCall()` on this app
+   * 
+   */
+  function _handleSkateCall(string calldata signature, bytes calldata data) internal override returns (bool, bytes4) {
+    if (matchMethod(signature, "count,uint256")) {
+      uint256 number = abi.decode(data, (uint256));
+      _count(number);
+      return (true, 0x0);
+    }
+
+    revert UnknownHandler();
+  }
+
+  event Count(uint256 number);
+  function _count(uint256 number) internal {
+    emit Count(number);
+  }
+}
+```
+
+<Note>
+Take note of the `increaseCounter()` and `_handleSkateIntent()` implementations.
+
+The **signature format** for methods should follow similar standard to kernel
+
+</Note>
+
+## Notes and best practices
+
+1. All deployed periphery should be registered on Kernel App using bytes32 format, see `setChainToPeripheryContract` on Kernel Skate App template.
+
+2. All shared logic should be maintain at Kernel level, periphery should only act as proxy for assets handler.
+
+3. Ensure to used a consistent omnichain assets format across your app, i.e. in case of rebalancing between periphery

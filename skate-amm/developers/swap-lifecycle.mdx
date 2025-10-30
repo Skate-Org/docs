@@ -27,8 +27,9 @@ const quote = await getSwapQuote(
 
 Execute the quote using the periphery SDK corresponding to your target chain:
 
-On EVM: 
-```tsx
+<CodeGroup>
+
+```ts evm.ts
 import { privateKeyToAccount } from "viem/accounts";
 import {
   createPublicClient,
@@ -75,8 +76,7 @@ const tx = await wallet.sendRawTransaction({
 return tx;
 ```
 
-On Solana:
-```tsx
+```ts solana.ts
 import { SkateSDK, Environment } from "@skate-org/skate_amm_solana";
 import {
   Transaction,
@@ -122,8 +122,7 @@ await sendAndConfirmTransaction(connection, swapTx, [svmContext.keypair], {
 
 ```
 
-On Sui:
-```tsx
+```ts sui.ts
 import { PoolType } from "@skate-org/skate_amm_sui_sdk";
 import SkateAmmSdk, { Environment } from "@skate-org/skate_amm_sui_sdk";
 import { SuiClient } from "@mysten/sui/client";
@@ -164,5 +163,6 @@ const result = await client.signAndExecuteTransaction({
   transaction: tx,
   signer: keypair,
 });
-
 ```
+
+</CodeGroup>

@@ -87,7 +87,9 @@
     {
       "group": "Stateless App Fundamentals",
       "pages": [
-        "main/stateless-app-fundamentals/pattern",
+        "main/stateless-app-fundamentals/design-pattern",
+        "main/stateless-app-fundamentals/skate-action-flow",
+        "main/stateless-app-fundamentals/example",
         "main/stateless-app-fundamentals/skate-amm"
       ]
     },
@@ -124,12 +126,7 @@
       "group": "Deployments",
       "pages": [
         "skate-amm/deployments/core-contracts",
-        {
-          "group": "Pools",
-          "pages": [
-            "skate-amm/deployments/pools/skate-usdc"
-          ]
-        }
+        "skate-amm/deployments/pools"
       ]
     },
     {

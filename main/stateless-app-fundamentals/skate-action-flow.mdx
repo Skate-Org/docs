@@ -1,0 +1,121 @@
+---
+title: "Skate Action Flow"
+description: "The end-to-end flow of a user action across chains via **Skate infrastructure**"
+---
+
+All Skate user Actions/Intents are processed by 3 different stages (on 3 different chains) following the below procedures
+
+## 1. Periphery Source Chain: User-Initiated Action
+
+<Steps>
+  <Step title="User Action">
+    User interacts with **App Periphery Contract** on the source chain, optionally depositing staged assets.
+  </Step>
+
+  <Step title="Skate Action Box">
+    The **App Periphery Contract** initiates an action by sending details through the **Skate Action Box**.
+  </Step>
+
+  <Step title="Acknowledgement and Verification">
+    **Skate Indexing Services** detect the action from **Action Box** and forward it to **EigenCloud** for verification by registered operators.
+  </Step>
+</Steps>
+
+<Note>
+Action struct emitted from Action Box
+```solidity
+struct Action {
+  bytes32 user; // Unique identifier for the action
+  address kernelApp; // Skate chain address of the intent receiver
+  string kernelMethod; // Metadata to decode kernel call
+  bytes kernelData; // The data attached to the call
+}
+  ```
+</Note>
+
+---
+
+## 2. Kernel Skatechain / EigenCloud: Verification and State Update
+
+
+<Steps>
+  <Step title="Operator Verification">
+    **EigenCloud Operators** verify the action and instruct the **Executor** to update state on the **KernelAdapter** using **Intents**.
+  </Step>
+
+  <Step title="Message Delivery">
+    The **Executor** submits the intent through `submitTasks` in the **MessageBox**.
+    The **MessageBox** routes the update to the corresponding **KernelAdapter**, which serves as the state machine of the cross-chain application.
+  </Step>
+
+  <Step title="Task Construction">
+    The **KernelAdapter** defines the logic to construct **Tasks**, each containing settlement information such as:
+    - Token transfers
+    - Attached data
+    - Involved addresses or accounts
+  </Step>
+
+  <Step title="Task Signing">
+    **Task Events** are picked up and signed by operators for settlement on destination chains.
+  </Step>
+</Steps>
+
+<Note>
+Intent struct verified by EigenCloud before parsing into MessageBox
+```solidity
+struct Intent {
+  bytes32 actionId;
+  bytes32 user;
+  bytes32 srcApp;
+  address kernelApp;
+  uint256 chainId;
+  uint256 vmType;
+  string kernelMethod; // EVM Abi
+  bytes kernelData; // EVM abi encoded bytes
+  bytes relayerSignature;
+}
+```
+
+
+Output Task struct from the MessageBox/KernelApp
+```solidity
+struct Task {
+  bytes32 actionId;
+  bytes32 appAddress;
+  bytes32 user;
+  uint256 srcChainId;
+  uint256 srcVmType;
+  uint256 destChainId;
+  uint256 destVmType;
+  string method;
+  bytes data;
+}
+```
+</Note>
+
+
+---
+
+## 3. Periphery Destination Chain: Settlement & Execution
+
+<Steps>
+  <Step title="Task Execution">
+    The **Executor** gathers signed tasks and calls `executeTask` on the **SkateGateway** of the destination periphery chain.
+  </Step>
+
+  <Step title="Verification & Delivery">
+    The **SkateGateway** verifies each task (checking signatures, preventing double spending, validating accounting state, etc.) and forwards it to the target **PeripheryApp**.
+  </Step>
+
+  <Step title="Settlement Completion">
+    The **PeripheryApp** executes the settlement logic:
+    - Releases assets
+    - Closes accounts (if any)
+    - Emits relevant events
+  </Step>
+
+  <Step title="Finalization & Acknowledgment">
+    The **EigenOperator** acknowledges the settled state for potential future disputes.  
+    The **slashing window** follows **EigenLayer’s** protocol.
+  </Step>
+</Steps>
